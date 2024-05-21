@@ -94,7 +94,7 @@
                                 <td>{{ task.tasklists }}</td>
                                 <td>
                                     <select :class="{'select-disabled': selectActor[taskId]}" class="select2" 
-                                        name="tableau_action" v-model="selectActor[taskId]" @change="fetchTASelect(taskId)">
+                                        name="tableau_action" v-model="selectActor[task.id]" @change="fetchTASelect(task.id)">
                                        <option v-for="(item, humanId) in  humanresources":key="humanId">
                                             {{ item.firstname }} {{item.lastname}}
                                        </option>
@@ -104,7 +104,8 @@
                                     <textarea id="area"  rows="2" class="textarea ou" @change=" fetchTA('ou', task.id); autoResize()" v-model="action[task.id+'-'+'ou']"></textarea>
                                 </td>
                                 <td id="quand">
-                                    <textarea id="area" rows="2" class="textarea quand" @change=" fetchTA('quand', task.id)" v-model="action[task.id+'-'+'quand']"></textarea>
+                                        Du<input type="date" class="inputdate" required v-model="action[task.id+'-'+'quandD']"  @change=" fetchTA('quandD', task.id)">au
+                                        <input type="date" class="inputdate"required v-model="action[task.id+'-'+'quandF']"  @change=" fetchTA('quandF', task.id)">                                  
                                 </td>
                                 <td>
                                     <textarea id="area" rows="2" class="textarea comment"  @change=" fetchTA('comment', task.id)" v-model="action[task.id+'-'+'comment']"></textarea>
@@ -159,12 +160,18 @@
                             <td>
                                 
                             </td>
-                            <td>
+                            <td class="fr">
                               <input type="date" class="inputdate"  @change= "fetchTP('delai',task.id)" v-model="selectoption ['delai'+'-'+task.id]">  
                             </td>
                         </tr>
                     </tbody>
                 </table>
+                </div><br><br>
+                <h5>VII-Planning ou le chronogramme des tâches</h5><br>
+                <div>
+                    <div id="chart">
+                        <apexchart type="rangeBar" height="350" :options="chartOptions" :series="series"></apexchart>
+                    </div>
                 </div>
             </div>
 
@@ -194,6 +201,162 @@ import axios from 'axios';
             taskId:'',
             action:{},
             selectoption:{},
+
+            series: [
+            {
+              name: 'Bob',
+              data: [
+                {
+                  x: 'Design',
+                  y: [
+                    new Date('2019-03-05').getTime(),
+                    new Date('2019-03-08').getTime()
+                  ]
+                },
+                {
+                  x: 'Code',
+                  y: [
+                    new Date('2019-03-02').getTime(),
+                    new Date('2019-03-05').getTime()
+                  ]
+                },
+                {
+                  x: 'Code',
+                  y: [
+                    new Date('2019-03-05').getTime(),
+                    new Date('2019-03-07').getTime()
+                  ]
+                },
+                {
+                  x: 'Test',
+                  y: [
+                    new Date('2019-03-03').getTime(),
+                    new Date('2019-03-09').getTime()
+                  ]
+                },
+                {
+                  x: 'Test',
+                  y: [
+                    new Date('2019-03-08').getTime(),
+                    new Date('2019-03-11').getTime()
+                  ]
+                },
+                {
+                  x: 'Validation',
+                  y: [
+                    new Date('2019-03-11').getTime(),
+                    new Date('2019-03-16').getTime()
+                  ]
+                },
+                {
+                  x: 'Design',
+                  y: [
+                    new Date('2019-03-01').getTime(),
+                    new Date('2019-03-03').getTime()
+                  ],
+                }
+              ]
+            },
+            {
+              name: 'Joe',
+              data: [
+                {
+                  x: 'Design',
+                  y: [
+                    new Date('2019-03-02').getTime(),
+                    new Date('2019-03-05').getTime()
+                  ]
+                },
+                {
+                  x: 'Test',
+                  y: [
+                    new Date('2019-03-06').getTime(),
+                    new Date('2019-03-16').getTime()
+                  ],
+                  goals: [
+                    {
+                      name: 'Break',
+                      value: new Date('2019-03-10').getTime(),
+                      strokeColor: '#CD2F2A'
+                    }
+                  ]
+                },
+                {
+                  x: 'Code',
+                  y: [
+                    new Date('2019-03-03').getTime(),
+                    new Date('2019-03-07').getTime()
+                  ]
+                },
+                {
+                  x: 'Deployment',
+                  y: [
+                    new Date('2019-03-20').getTime(),
+                    new Date('2019-03-22').getTime()
+                  ]
+                },
+                {
+                  x: 'Design',
+                  y: [
+                    new Date('2019-03-10').getTime(),
+                    new Date('2019-03-16').getTime()
+                  ]
+                }
+              ]
+            },
+            {
+              name: 'Dan',
+              data: [
+                {
+                  x: 'Code',
+                  y: [
+                    new Date('2019-03-10').getTime(),
+                    new Date('2019-03-17').getTime()
+                  ]
+                },
+                {
+                  x: 'Validation',
+                  y: [
+                    new Date('2019-03-05').getTime(),
+                    new Date('2019-03-09').getTime()
+                  ],
+                  goals: [
+                    {
+                      name: 'Break',
+                      value: new Date('2019-03-07').getTime(),
+                      strokeColor: '#CD2F2A'
+                    }
+                  ]
+                },
+              ]
+            }
+          ],
+          chartOptions: {
+            chart: {
+              height: 450,
+              type: 'rangeBar'
+            },
+            plotOptions: {
+              bar: {
+                horizontal: true,
+                barHeight: '80%'
+              }
+            },
+            xaxis: {
+              type: 'datetime'
+            },
+            stroke: {
+              width: 1
+            },
+            fill: {
+              type: 'solid',
+              opacity: 0.6
+            },
+            legend: {
+              position: 'top',
+              horizontalAlign: 'left'
+            }
+          },
             options: [
                 { label: 'urgent', value: 'X' },
                 { label: 'Pas urgent', value: ' ' },
@@ -544,8 +707,8 @@ import axios from 'axios';
             border: 1px solid #2c2b2b;
             text-align: left;
         }
-    table{
-        width: 800px!important;
+    .table{
+        width: 100px!important;
     }
     .table3{
         width: 990px!important;
@@ -586,4 +749,6 @@ import axios from 'axios';
         border: none;
         outline:none;
     }
+    
+   
 </style>
