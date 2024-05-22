@@ -94,7 +94,7 @@
                                 <td>{{ task.tasklists }}</td>
                                 <td>
                                     <select :class="{'select-disabled': selectActor[taskId]}" class="select2" 
-                                        name="tableau_action" v-model="selectActor[task.id]" @change="fetchTASelect(task.id)">
+                                        name="tableau_action" v-model="selectActor[task.id+'-'+'qui']" @change="fetchTASelect(task.id,'qui')">
                                        <option v-for="(item, humanId) in  humanresources":key="humanId">
                                             {{ item.firstname }} {{item.lastname}}
                                        </option>
@@ -201,162 +201,63 @@ import axios from 'axios';
             taskId:'',
             action:{},
             selectoption:{},
+            actor:{},
+            quandD:'',
+            quandF:'',
+            quoi:'',
 
-            series: [
+
+            
+          series: [
             {
-              name: 'Bob',
               data: [
-                {
-                  x: 'Design',
-                  y: [
-                    new Date('2019-03-05').getTime(),
-                    new Date('2019-03-08').getTime()
-                  ]
-                },
                 {
                   x: 'Code',
                   y: [
                     new Date('2019-03-02').getTime(),
-                    new Date('2019-03-05').getTime()
-                  ]
-                },
-                {
-                  x: 'Code',
-                  y: [
-                    new Date('2019-03-05').getTime(),
-                    new Date('2019-03-07').getTime()
+                    new Date('2019-03-04').getTime()
                   ]
                 },
                 {
                   x: 'Test',
                   y: [
-                    new Date('2019-03-03').getTime(),
-                    new Date('2019-03-09').getTime()
-                  ]
-                },
-                {
-                  x: 'Test',
-                  y: [
-                    new Date('2019-03-08').getTime(),
-                    new Date('2019-03-11').getTime()
+                    new Date('2019-03-04').getTime(),
+                    new Date('2019-03-08').getTime()
                   ]
                 },
                 {
                   x: 'Validation',
                   y: [
-                    new Date('2019-03-11').getTime(),
-                    new Date('2019-03-16').getTime()
-                  ]
-                },
-                {
-                  x: 'Design',
-                  y: [
-                    new Date('2019-03-01').getTime(),
-                    new Date('2019-03-03').getTime()
-                  ],
-                }
-              ]
-            },
-            {
-              name: 'Joe',
-              data: [
-                {
-                  x: 'Design',
-                  y: [
-                    new Date('2019-03-02').getTime(),
-                    new Date('2019-03-05').getTime()
-                  ]
-                },
-                {
-                  x: 'Test',
-                  y: [
-                    new Date('2019-03-06').getTime(),
-                    new Date('2019-03-16').getTime()
-                  ],
-                  goals: [
-                    {
-                      name: 'Break',
-                      value: new Date('2019-03-10').getTime(),
-                      strokeColor: '#CD2F2A'
-                    }
-                  ]
-                },
-                {
-                  x: 'Code',
-                  y: [
-                    new Date('2019-03-03').getTime(),
-                    new Date('2019-03-07').getTime()
+                    new Date('2019-03-08').getTime(),
+                    new Date('2019-03-12').getTime()
                   ]
                 },
                 {
                   x: 'Deployment',
                   y: [
-                    new Date('2019-03-20').getTime(),
-                    new Date('2019-03-22').getTime()
-                  ]
-                },
-                {
-                  x: 'Design',
-                  y: [
-                    new Date('2019-03-10').getTime(),
-                    new Date('2019-03-16').getTime()
+                    new Date('2019-03-12').getTime(),
+                    new Date('2019-03-18').getTime()
                   ]
                 }
-              ]
-            },
-            {
-              name: 'Dan',
-              data: [
-                {
-                  x: 'Code',
-                  y: [
-                    new Date('2019-03-10').getTime(),
-                    new Date('2019-03-17').getTime()
-                  ]
-                },
-                {
-                  x: 'Validation',
-                  y: [
-                    new Date('2019-03-05').getTime(),
-                    new Date('2019-03-09').getTime()
-                  ],
-                  goals: [
-                    {
-                      name: 'Break',
-                      value: new Date('2019-03-07').getTime(),
-                      strokeColor: '#CD2F2A'
-                    }
-                  ]
-                },
               ]
             }
           ],
           chartOptions: {
             chart: {
-              height: 450,
+              height: 350,
               type: 'rangeBar'
             },
             plotOptions: {
               bar: {
-                horizontal: true,
-                barHeight: '80%'
+                horizontal: true
               }
             },
             xaxis: {
               type: 'datetime'
-            },
-            stroke: {
-              width: 1
-            },
-            fill: {
-              type: 'solid',
-              opacity: 0.6
-            },
-            legend: {
-              position: 'top',
-              horizontalAlign: 'left'
             }
           },
+
+
             options: [
                 { label: 'urgent', value: 'X' },
                 { label: 'Pas urgent', value: ' ' },
@@ -382,7 +283,7 @@ import axios from 'axios';
         this.readTASelect();
         this. readTA();
         this. readTP();
-        
+        this. readApex();
        
     },
     methods:{
@@ -558,11 +459,12 @@ import axios from 'axios';
                 })
 
             },
-            fetchTASelect(taskId){
+            fetchTASelect(taskId, id){
                 var data= new FormData();
                 data.append('id_projet', this.id_projet);
                 data.append('id_t',taskId);
-                data.append('value',this.selectActor[taskId])
+                data.append('value',this.selectActor[taskId+'-'+'qui'])
+                data.append('qqoqcpc', id)
                 axios({
                     method:'POST',
                     url:'http://localhost/planaction/projectinfo.php?action=create_tableauaction',
@@ -585,7 +487,8 @@ import axios from 'axios';
                     response.data.forEach(item=>{
                         var taskId= item.id_task;
                         var value= item.value;
-                        this.selectActor[taskId]=value;
+                        var id= item.qqoqcpc;
+                        this.selectActor[taskId+'-'+id]=value;
                     })
                     
                 }).catch((error)=>{
@@ -599,9 +502,7 @@ import axios from 'axios';
                 data.append('id_t',taskId);
                 data.append('value',this.action[taskId+'-'+id])
                 data.append('qqoqcpc',id);
-                console.log(id);
-                console.log(taskId);
-                console.log(this.action[taskId+'-'+id])
+                
                 axios({
                     method:'POST',
                     url:'http://localhost/planaction/projectinfo.php?action=create_tableauaction',
@@ -627,6 +528,7 @@ import axios from 'axios';
                         var value= item.value;
                         var id= item.qqoqcpc;
                         this.action[taskId+'-'+id]=value;
+                        
                     })
                     
                 }).catch((error)=>{
@@ -680,6 +582,19 @@ import axios from 'axios';
                 })
 
             },
+            readApex(){
+                var data= new FormData();
+                 data.append('id_p', this.id_projet);
+                axios({
+                    method:'POST',
+                    url:'http://localhost/planaction/projectinfo.php?action=read_apexresource',
+                    data:data
+                }).then((response)=>{  
+                        console.log(response.data)
+                }).catch((error)=>{
+                    console.log(error)
+                })
+            },
             }   
    }
 </script>
@@ -707,8 +622,8 @@ import axios from 'axios';
             border: 1px solid #2c2b2b;
             text-align: left;
         }
-    .table{
-        width: 100px!important;
+    table{
+        width: 800px!important;
     }
     .table3{
         width: 990px!important;
