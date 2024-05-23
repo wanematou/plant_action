@@ -94,27 +94,27 @@
                                 <td>{{ task.tasklists }}</td>
                                 <td>
                                     <select :class="{'select-disabled': selectActor[taskId]}" class="select2" 
-                                        name="tableau_action" v-model="selectActor[task.id+'-'+'qui']" @change="fetchTASelect(task.id,'qui')">
+                                        name="tableau_action" v-model="selectActor[task.id]" @change="fetchTA(task.id)">
                                        <option v-for="(item, humanId) in  humanresources":key="humanId">
                                             {{ item.firstname }} {{item.lastname}}
                                        </option>
                                     </select>
                                 </td>
                                 <td id="ou">
-                                    <textarea id="area"  rows="2" class="textarea ou" @change=" fetchTA('ou', task.id); autoResize()" v-model="action[task.id+'-'+'ou']"></textarea>
+                                    <textarea id="area"  rows="2" class="textarea ou" @change=" fetchTA(task.id); autoResize()" v-model="selectOu[task.id]"></textarea>
                                 </td>
                                 <td id="quand">
-                                        Du<input type="date" class="inputdate" required v-model="action[task.id+'-'+'quandD']"  @change=" fetchTA('quandD', task.id)">au
-                                        <input type="date" class="inputdate"required v-model="action[task.id+'-'+'quandF']"  @change=" fetchTA('quandF', task.id)">                                  
+                                        Du<input type="date" class="inputdate" required v-model="selectquandD[task.id]"  @change=" fetchTA(task.id)">au
+                                        <input type="date" class="inputdate"required v-model="selectquandF[task.id]"  @change=" fetchTA(task.id)">                                  
                                 </td>
                                 <td>
-                                    <textarea id="area" rows="2" class="textarea comment"  @change=" fetchTA('comment', task.id)" v-model="action[task.id+'-'+'comment']"></textarea>
+                                    <textarea id="area" rows="2" class="textarea comment"  @change=" fetchTA(task.id)" v-model="selectcomment[task.id]"></textarea>
                                 </td>
                                 <td>
-                                    <textarea id="area" rows="2" class="textarea pourquoi"  @change=" fetchTA('pourquoi', task.id)" v-model="action[task.id+'-'+'pourquoi']"></textarea>
+                                    <textarea id="area" rows="2" class="textarea pourquoi"  @change=" fetchTA(task.id)" v-model="selectpourquoi[task.id]"></textarea>
                                 </td>
                                 <td>
-                                    <textarea id="area" rows="2" class="textarea combien" @change=" fetchTA('combien', task.id)" v-model="action[task.id+'-'+'combien']"></textarea>
+                                    <textarea id="area" rows="2" class="textarea combien" @change=" fetchTA(task.id)" v-model="selectcombien[task.id]"></textarea>
                                 </td>
                             </tr>
                         </tbody>
@@ -141,27 +141,27 @@
                                 {{ task.tasklists }}
                             </td>
                             <td>
-                                <select class="select2" id="" @change= "fetchTP('urgent',task.id)" v-model="selectoption ['urgent'+'-'+task.id]">
+                                <select class="select2" id="" @change= "fetchTP(task.id)" v-model="selecturgent[task.id]">
                                     <option v-for="option in options" :value="option.value">
                                         {{ option.label }}
                                     </option>
                                 </select>
                             </td>
                             <td> 
-                                <select class="select2" id="" @change= "fetchTP('important',task.id)" v-model="selectoption ['important'+'-'+task.id]">
-                                    <option v-for="option in options2" :value="option.value2">
-                                        {{ option }}
+                                <select class="select2" id="" @change= "fetchTP(task.id)" v-model="selectimportant[task.id]">
+                                    <option v-for="option in options2" :value="option.value">
+                                        {{ option.label }}
                                     </option>
                                 </select>
                             </td>
                             <td>
-                                
+                              <p>{{selectpriorite[task.id]}}</p>  
                             </td>
                             <td>
-                                
+                                <p>{{selectstatut[task.id]}}</p>  
                             </td>
                             <td class="fr">
-                              <input type="date" class="inputdate"  @change= "fetchTP('delai',task.id)" v-model="selectoption ['delai'+'-'+task.id]">  
+                              <input type="date" class="inputdate"  @change= "fetchTP(task.id)" v-model="selectdelai[task.id]">  
                             </td>
                         </tr>
                     </tbody>
@@ -197,74 +197,186 @@ import axios from 'axios';
             humanresources:'',
             selectedTasks:{},
             selectActor:{},
+            selectOu:{},
             actorId:'',
             taskId:'',
             action:{},
             selectoption:{},
             actor:{},
-            quandD:'',
-            quandF:'',
-            quoi:'',
-
-
-            
-          series: [
+            selectquandD:{},
+            selectquandF:{},
+            selectcomment:{},
+            selectpourquoi:{},
+            selectcombien:{}, 
+            selecturgent:{},
+            selectimportant:{},
+            selectdelai:{},  
+            selectpriorite:{},   
+            selectstatut:{},                
+            series: [
             {
+              name: 'Bob',
               data: [
+                {
+                  x: 'Design',
+                  y: [
+                    new Date('2019-03-05').getTime(),
+                    new Date('2019-03-08').getTime()
+                  ]
+                },
                 {
                   x: 'Code',
                   y: [
                     new Date('2019-03-02').getTime(),
-                    new Date('2019-03-04').getTime()
+                    new Date('2019-03-05').getTime()
+                  ]
+                },
+                {
+                  x: 'Code',
+                  y: [
+                    new Date('2019-03-05').getTime(),
+                    new Date('2019-03-07').getTime()
                   ]
                 },
                 {
                   x: 'Test',
                   y: [
-                    new Date('2019-03-04').getTime(),
-                    new Date('2019-03-08').getTime()
+                    new Date('2019-03-03').getTime(),
+                    new Date('2019-03-09').getTime()
+                  ]
+                },
+                {
+                  x: 'Test',
+                  y: [
+                    new Date('2019-03-08').getTime(),
+                    new Date('2019-03-11').getTime()
                   ]
                 },
                 {
                   x: 'Validation',
                   y: [
-                    new Date('2019-03-08').getTime(),
-                    new Date('2019-03-12').getTime()
+                    new Date('2019-03-11').getTime(),
+                    new Date('2019-03-16').getTime()
+                  ]
+                },
+                {
+                  x: 'Design',
+                  y: [
+                    new Date('2019-03-01').getTime(),
+                    new Date('2019-03-03').getTime()
+                  ],
+                }
+              ]
+            },
+            {
+              name: 'Joe',
+              data: [
+                {
+                  x: 'Design',
+                  y: [
+                    new Date('2019-03-02').getTime(),
+                    new Date('2019-03-05').getTime()
+                  ]
+                },
+                {
+                  x: 'Test',
+                  y: [
+                    new Date('2019-03-06').getTime(),
+                    new Date('2019-03-16').getTime()
+                  ],
+                  goals: [
+                    {
+                      name: 'Break',
+                      value: new Date('2019-03-10').getTime(),
+                      strokeColor: '#CD2F2A'
+                    }
+                  ]
+                },
+                {
+                  x: 'Code',
+                  y: [
+                    new Date('2019-03-03').getTime(),
+                    new Date('2019-03-07').getTime()
                   ]
                 },
                 {
                   x: 'Deployment',
                   y: [
-                    new Date('2019-03-12').getTime(),
-                    new Date('2019-03-18').getTime()
+                    new Date('2019-03-20').getTime(),
+                    new Date('2019-03-22').getTime()
+                  ]
+                },
+                {
+                  x: 'Design',
+                  y: [
+                    new Date('2019-03-10').getTime(),
+                    new Date('2019-03-16').getTime()
                   ]
                 }
+              ]
+            },
+            {
+              name: 'Dan',
+              data: [
+                {
+                  x: 'Code',
+                  y: [
+                    new Date('2019-03-10').getTime(),
+                    new Date('2019-03-17').getTime()
+                  ]
+                },
+                {
+                  x: 'Validation',
+                  y: [
+                    new Date('2019-03-05').getTime(),
+                    new Date('2019-03-09').getTime()
+                  ],
+                  goals: [
+                    {
+                      name: 'Break',
+                      value: new Date('2019-03-07').getTime(),
+                      strokeColor: '#CD2F2A'
+                    }
+                  ]
+                },
               ]
             }
           ],
           chartOptions: {
             chart: {
-              height: 350,
+              height: 450,
               type: 'rangeBar'
             },
             plotOptions: {
               bar: {
-                horizontal: true
+                horizontal: true,
+                barHeight: '80%'
               }
             },
             xaxis: {
               type: 'datetime'
+            },
+            stroke: {
+              width: 1
+            },
+            fill: {
+              type: 'solid',
+              opacity: 0.6
+            },
+            legend: {
+              position: 'top',
+              horizontalAlign: 'left'
             }
           },
 
 
             options: [
-                { label: 'urgent', value: 'X' },
-                { label: 'Pas urgent', value: ' ' },
+                { label: 'urgent', value: 'urgent' },
+                { label: 'Pas urgent', value: 'pas_urgent ' },
             ],
             options2: [
-                { label: 'important', value2: 'X' },
-                { label: 'Pas important', value2: ' ' },
+                { label: 'important', value: 'important' },
+                { label: 'Pas important', value: 'pas_important ' },
             ],
         }
     },
@@ -280,7 +392,6 @@ import axios from 'axios';
         this.initSelectedTasks();
         this.readhumanresource();
         this.readRAChoice();
-        this.readTASelect();
         this. readTA();
         this. readTP();
         this. readApex();
@@ -459,56 +570,25 @@ import axios from 'axios';
                 })
 
             },
-            fetchTASelect(taskId, id){
+
+            fetchTA(taskId){
                 var data= new FormData();
                 data.append('id_projet', this.id_projet);
                 data.append('id_t',taskId);
-                data.append('value',this.selectActor[taskId+'-'+'qui'])
-                data.append('qqoqcpc', id)
-                axios({
-                    method:'POST',
-                    url:'http://localhost/planaction/projectinfo.php?action=create_tableauaction',
-                    data:data
-                }).then((response)=>{
-                    this.readTASelect();
-                }).catch((error)=>{
-                    console.log(error)
-                })
-
-            },
-            readTASelect(){
-                var data= new FormData();
-                 data.append('id_p', this.id_projet);
-                axios({
-                    method:'POST',
-                    url:'http://localhost/planaction/projectinfo.php?action=read_tableauaction',
-                    data:data
-                }).then((response)=>{  
-                    response.data.forEach(item=>{
-                        var taskId= item.id_task;
-                        var value= item.value;
-                        var id= item.qqoqcpc;
-                        this.selectActor[taskId+'-'+id]=value;
-                    })
-                    
-                }).catch((error)=>{
-                    console.log(error)
-                })
-
-            },
-            fetchTA(id, taskId){
-                var data= new FormData();
-                data.append('id_projet', this.id_projet);
-                data.append('id_t',taskId);
-                data.append('value',this.action[taskId+'-'+id])
-                data.append('qqoqcpc',id);
-                
+                data.append('qui',this.selectActor[taskId]),
+                data.append('ou',this.selectOu[taskId]),
+                data.append('quandD',this.selectquandD[taskId]),
+                data.append('quandF',this.selectquandF[taskId]),
+                data.append('comment',this.selectcomment[taskId]),
+                data.append('pourquoi',this.selectpourquoi[taskId]),
+                data.append('combien',this.selectcombien[taskId]),
                 axios({
                     method:'POST',
                     url:'http://localhost/planaction/projectinfo.php?action=create_tableauaction',
                     data:data
                 }).then((response)=>{
                     this. readTA();
+                    this. readApex();
                 }).catch((error)=>{
                     console.log(error)
                 })
@@ -522,12 +602,32 @@ import axios from 'axios';
                     url:'http://localhost/planaction/projectinfo.php?action=read_tableauaction',
                     data:data
                 }).then((response)=>{
-                    console.log(response.data);  
                     response.data.forEach(item=>{
                         var taskId= item.id_task;
-                        var value= item.value;
-                        var id= item.qqoqcpc;
-                        this.action[taskId+'-'+id]=value;
+                        this.selectActor[taskId]=item.qui;
+                        if(item.ou=='null'||item.ou=='undefined'){
+                            this.selectOu[taskId]='';
+                        }else{
+                            this.selectOu[taskId]=item.ou;
+                        };
+                        this.selectquandD[taskId]=item.quandD;
+                        this.selectquandF[taskId]=item.quandF;
+                        if(item.comment=='null'||item.comment=='undefined'){
+                            this.selectcomment[taskId]='';
+                        }else{
+                            this.selectcomment[taskId]=item.comment;
+                        };
+                        if(item.pourquoi=='null'||item.pourquoi=='undefined'){
+                            this.selectpourquoi[taskId]='';
+                        }else{
+                            this.selectpourquoi[taskId]=item.pourquoi;
+                        };
+                        if(item.combien=='null'||item.combien=='undefined'){
+                            this.selectcombien[taskId]='';
+                        }else{
+                            this.selectcombien[taskId]=item.combien;
+                        };
+                        
                         
                     })
                     
@@ -543,14 +643,15 @@ import axios from 'axios';
             textarea.style.height = 'auto';
             textarea.style.height = (textarea.scrollHeight) + 'px';
             },
-            fetchTP(id, taskId){
-                console.log(this.selectoption [id+'-'+taskId]);
+            fetchTP(taskId){
                 var data= new FormData();
                 data.append('id_projet', this.id_projet);
                 data.append('task_id',taskId);
-                data.append('value',this.selectoption [id+'-'+taskId]);
-                data.append('action',id);
-                data.append('delai',id);
+                data.append('urgent',this.selecturgent[taskId]);
+                data.append('important',this.selectimportant[taskId]);
+                data.append('priorite',this.selectpriorite[taskId]);
+                // data.append('statut',this.selectstatut[taskId]);
+                data.append('delai',this.selectdelai[taskId]);
                 axios({
                     method:'POST',
                     url:'http://localhost/planaction/projectinfo.php?action=create_priorite',
@@ -572,25 +673,54 @@ import axios from 'axios';
                     data:data
                 }).then((response)=>{  
                         response.data.forEach(item=>{
-                            var value= item.value;
-                            var id= item.action;
                             var taskId= item.task_id;
-                            this.selectoption [id+'-'+taskId]=value;
+                            this.selecturgent[taskId]=item.urgent;
+                            this.selectimportant[taskId]=item.important;
+                            this.selectdelai[taskId]=item.delai;
+                            if(item.urgent=="urgent" & item.important=="important"){
+                                this.selectpriorite[taskId]='X';
+                            }else{
+                                this.selectpriorite[taskId]='';
+                            };
+                            if(item.urgent=="urgent" & item.important=="important"){
+                                this.selectstatut[taskId]='P1';
+                            }else{
+                                this.selectstatut[taskId]='P2';
+                            };
+
+                      
                         })
                 }).catch((error)=>{
                     console.log(error)
                 })
 
             },
-            readApex(){
+            async readApex(){
                 var data= new FormData();
                  data.append('id_p', this.id_projet);
-                axios({
+                await axios({
                     method:'POST',
                     url:'http://localhost/planaction/projectinfo.php?action=read_apexresource',
                     data:data
                 }).then((response)=>{  
-                        console.log(response.data)
+                        this.series=[
+                            {
+                                data:[]
+                            }
+                        ];
+                        response.data.forEach(item=>{
+                           const dataApex={
+                                x:item.tasklists,
+                                y: [
+                                    new Date(item.quandD).getTime(),
+                                    new Date(item.quandF).getTime()
+                                ]
+                           };
+                           this.series[0].data.push(dataApex);
+                        });
+                        console.log(this.series);
+                        
+                        
                 }).catch((error)=>{
                     console.log(error)
                 })
