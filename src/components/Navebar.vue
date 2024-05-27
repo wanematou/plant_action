@@ -35,7 +35,7 @@
       display: flex;
       align-items: center;
       border-bottom: 5px solid #4e6c71;
-      z-index: 2;
+      z-index: 4;
       font-size: 15px;
       }
       

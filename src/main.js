@@ -11,11 +11,14 @@ import 'bootstrap-icons/font/bootstrap-icons.css';
 import ElementPlus from 'element-plus';
 import 'element-plus/dist/index.css';
 import VueApexCharts from "vue3-apexcharts";
+import Multiselect from 'vue-multiselect';
+import jsPDF from 'jspdf';
 const pinia= createPinia();
 createApp(App)
     .component('EasyDataTable', Vue3EasyDataTable)
     .use(ElementPlus)
     .use(pinia)
     .use(VueApexCharts)
+    .use(Multiselect)
     .use(router)
     .mount('#app')

@@ -18,8 +18,10 @@
     "element-plus": "^2.7.1",
     "handsontable": "^14.3.0",
     "jquery": "^3.7.1",
+    "jspdf": "^2.5.1",
     "pinia": "^2.1.7",
     "vue": "^3.4.21",
+    "vue-multiselect": "^3.0.0",
     "vue-router": "^4.3.0",
     "vue3-apexcharts": "^1.5.2",
     "vue3-easy-data-table": "^1.5.47"

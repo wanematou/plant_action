@@ -2,7 +2,7 @@
         <Dashboardnave/>
         <div class="container">
         <div class="card">
-            <router-link to="projectRouter/:id_projet/title" class="text-decoration-none" >
+            <router-link to="projectRouter/:id_projet/title" class="text-decoration-none">
             <div class="card-body ">
                 <p class="text-dark">Créer un nouveau</p>
                 <div class="plus text-dark">
@@ -12,11 +12,18 @@
             </router-link>
         </div>
         <div class="card" v-for="(item,id) in projectnames":key="1">
-            <router-link :to="{ name: 'objective', params: { id_projet: item.id }}" class="text-decoration-none" >
             <div class="card-body">
                <p class="projectname"> {{item.projectname}}</p>
+               <div class="dropdown">
+                    <button class="dropbtn">⋮</button>
+                    <div class="dropdown-content">
+                        <router-link :to="{ name: 'objective', params: { id_projet: item.id }}" class="text-decoration-none" id="router">Modifier</router-link> 
+                        <button onclick="option2()">Supprimer</button>
+                        <button onclick="option3()">Telecharger</button>
+                    </div>
+                </div>
             </div>
-            </router-link>
+      
         </div> 
         </div>
 </template>
@@ -72,5 +79,68 @@
     text-align: center;
     font-size: 13px;
 }
+.dropdown {
+    position: relative;
+    display: inline-block;
+    left: 175px;
+    bottom: 150px;
+}
+
+.dropbtn {
+    background-color: #fafcfd;
+    color: rgb(3, 0, 0);
+    padding: 10px;
+    font-size: 25px;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: #f9f9f9;
+    min-width: 160px;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2)!important;
+    z-index: 1;
+}
+
+.dropdown-content button {
+    background-color: white;
+    color: black;
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+    border: none;
+    text-align: left;
+    width: 100%;
+}
+.dropdown-content #router{
+    background-color: white;
+    color: rgb(7, 7, 7);
+    padding: 12px 16px;
+    font-weight: normal!important;
+    text-decoration: none;
+    display: block;
+    border: none;
+    text-align: left;
+    width: 100%;
+}
+
+.dropdown-content button:hover {
+    background-color: #f1f1f1;
+}
+.dropdown-content #router:hover {
+    background-color: #f1f1f1;
+}
+
+.dropdown:hover .dropdown-content {
+    display: block;
+}
+
+.dropdown:hover .dropbtn {
+    background-color: #f8f8f8;
+}
+
 
 </style>

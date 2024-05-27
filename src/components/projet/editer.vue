@@ -1,11 +1,12 @@
 <template>
    <div class="container">
-        <div class="card">
+        <div class="card" id="card">
             <div class="card-body">
                 <div class="nom_projet">
                     <h1 v-for="item in projectnames">
                     {{ item.projectname }}
-                </h1>
+                    </h1>
+                    <button @click="downloadPDF()">Telecharger</button>
                 </div><br><br>
                 <div class="objectif_principale">
                     <h5>I-Objectif principal</h5>
@@ -61,11 +62,7 @@
                     <tr v-for="(task, taskIndex) in tasklist" :key="taskIndex">
                         <td>{{ task.tasklists }}</td>
                         <td v-for="(actor, actorIndex) in humanresources" :key="actorIndex">
-                            <select :class="{'select-disabled': selectedTasks[actor.id + '-' + task.id] }"
-                                 v-model="selectedTasks[actor.id + '-' + task.id]"
-                                 @change=" fetchRAChoice(actor.id,task.id)" id="select1">
-                                <option v-for="(option, optionIndex) in pluslists" :key="optionIndex">{{ option.sigle}}</option>
-                            </select>
+                            {{selectedTasks[actor.id + '-' + task.id]}}
                         </td>
                     </tr>
                 </tbody>
@@ -104,8 +101,8 @@
                                     <textarea id="area"  rows="2" class="textarea ou" @change=" fetchTA(task.id); autoResize()" v-model="selectOu[task.id]"></textarea>
                                 </td>
                                 <td id="quand">
-                                        Du<input type="date" class="inputdate" required v-model="selectquandD[task.id]"  @change=" fetchTA(task.id)">au
-                                        <input type="date" class="inputdate"required v-model="selectquandF[task.id]"  @change=" fetchTA(task.id)">                                  
+                                        Du <input type="date" class="inputdate" required v-model="selectquandD[task.id]"  @change=" fetchTA(task.id)"><br>
+                                        Au <input type="date" class="inputdate"required v-model="selectquandF[task.id]"  @change=" fetchTA(task.id)">                                  
                                 </td>
                                 <td>
                                     <textarea id="area" rows="2" class="textarea comment"  @change=" fetchTA(task.id)" v-model="selectcomment[task.id]"></textarea>
@@ -182,6 +179,7 @@
 
 <script>
 import axios from 'axios';
+import { jsPDF } from "jspdf";
    export default{
     props:['id_projet'],
     data(){
@@ -213,135 +211,7 @@ import axios from 'axios';
             selectdelai:{},  
             selectpriorite:{},   
             selectstatut:{},                
-            series: [
-            {
-              name: 'Bob',
-              data: [
-                {
-                  x: 'Design',
-                  y: [
-                    new Date('2019-03-05').getTime(),
-                    new Date('2019-03-08').getTime()
-                  ]
-                },
-                {
-                  x: 'Code',
-                  y: [
-                    new Date('2019-03-02').getTime(),
-                    new Date('2019-03-05').getTime()
-                  ]
-                },
-                {
-                  x: 'Code',
-                  y: [
-                    new Date('2019-03-05').getTime(),
-                    new Date('2019-03-07').getTime()
-                  ]
-                },
-                {
-                  x: 'Test',
-                  y: [
-                    new Date('2019-03-03').getTime(),
-                    new Date('2019-03-09').getTime()
-                  ]
-                },
-                {
-                  x: 'Test',
-                  y: [
-                    new Date('2019-03-08').getTime(),
-                    new Date('2019-03-11').getTime()
-                  ]
-                },
-                {
-                  x: 'Validation',
-                  y: [
-                    new Date('2019-03-11').getTime(),
-                    new Date('2019-03-16').getTime()
-                  ]
-                },
-                {
-                  x: 'Design',
-                  y: [
-                    new Date('2019-03-01').getTime(),
-                    new Date('2019-03-03').getTime()
-                  ],
-                }
-              ]
-            },
-            {
-              name: 'Joe',
-              data: [
-                {
-                  x: 'Design',
-                  y: [
-                    new Date('2019-03-02').getTime(),
-                    new Date('2019-03-05').getTime()
-                  ]
-                },
-                {
-                  x: 'Test',
-                  y: [
-                    new Date('2019-03-06').getTime(),
-                    new Date('2019-03-16').getTime()
-                  ],
-                  goals: [
-                    {
-                      name: 'Break',
-                      value: new Date('2019-03-10').getTime(),
-                      strokeColor: '#CD2F2A'
-                    }
-                  ]
-                },
-                {
-                  x: 'Code',
-                  y: [
-                    new Date('2019-03-03').getTime(),
-                    new Date('2019-03-07').getTime()
-                  ]
-                },
-                {
-                  x: 'Deployment',
-                  y: [
-                    new Date('2019-03-20').getTime(),
-                    new Date('2019-03-22').getTime()
-                  ]
-                },
-                {
-                  x: 'Design',
-                  y: [
-                    new Date('2019-03-10').getTime(),
-                    new Date('2019-03-16').getTime()
-                  ]
-                }
-              ]
-            },
-            {
-              name: 'Dan',
-              data: [
-                {
-                  x: 'Code',
-                  y: [
-                    new Date('2019-03-10').getTime(),
-                    new Date('2019-03-17').getTime()
-                  ]
-                },
-                {
-                  x: 'Validation',
-                  y: [
-                    new Date('2019-03-05').getTime(),
-                    new Date('2019-03-09').getTime()
-                  ],
-                  goals: [
-                    {
-                      name: 'Break',
-                      value: new Date('2019-03-07').getTime(),
-                      strokeColor: '#CD2F2A'
-                    }
-                  ]
-                },
-              ]
-            }
-          ],
+            series: [],
           chartOptions: {
             chart: {
               height: 450,
@@ -368,8 +238,6 @@ import axios from 'axios';
               horizontalAlign: 'left'
             }
           },
-
-
             options: [
                 { label: 'urgent', value: 'urgent' },
                 { label: 'Pas urgent', value: 'pas_urgent ' },
@@ -378,6 +246,8 @@ import axios from 'axios';
                 { label: 'important', value: 'important' },
                 { label: 'Pas important', value: 'pas_important ' },
             ],
+            cardTitle: 'Titre de la carte',
+            cardContent: ''
         }
     },
     mounted(){
@@ -532,23 +402,7 @@ import axios from 'axios';
                     Array.from({ length: this.tasklist.length }, () => '')
                 );
             },
-            fetchRAChoice(actorId , taskId){
-                var data= new FormData();
-                data.append('id_projet', this.id_projet);
-                data.append('id_a', actorId);
-                data.append('id_t',taskId);
-                data.append('choice',this.selectedTasks[actorId+'-'+taskId])
-                axios({
-                    method:'POST',
-                    url:'http://localhost/planaction/projectinfo.php?action=create_saveplus',
-                    data:data
-                }).then((response)=>{
-                    this. readRAChoice();
-                }).catch((error)=>{
-                    console.log(error)
-                })
 
-            },
             readRAChoice(){
                 var data= new FormData();
                  data.append('id_p', this.id_projet);
@@ -703,21 +557,25 @@ import axios from 'axios';
                     url:'http://localhost/planaction/projectinfo.php?action=read_apexresource',
                     data:data
                 }).then((response)=>{  
-                        this.series=[
-                            {
-                                data:[]
-                            }
-                        ];
+                    console.log(response.data);
+                        const transformedData={};
                         response.data.forEach(item=>{
-                           const dataApex={
-                                x:item.tasklists,
-                                y: [
-                                    new Date(item.quandD).getTime(),
-                                    new Date(item.quandF).getTime()
-                                ]
-                           };
-                           this.series[0].data.push(dataApex);
+                           var name=item.qui;
+                            var task= item.tasklists;
+                            var dateD= new Date(item.quandD).getTime();
+                            var dateF= new Date(item.quandF).getTime();
+                            transformedData[task] = {
+                                name: name,
+                                dateD: dateD,
+                                dateF: dateF
+                            };
                         });
+                        this.series = Object.keys(transformedData).map(task => ({
+                        name: transformedData[task].name,
+                        data: [{
+                            x: task,
+                            y: [transformedData[task].dateD, transformedData[task].dateF]
+                        }]}));
                         console.log(this.series);
                         
                         
@@ -725,6 +583,17 @@ import axios from 'axios';
                     console.log(error)
                 })
             },
+            downloadPDF(){
+                const doc = new jsPDF();
+                this.cardContent= document.getElementById('card')
+                const cardContent = this.cardContent;
+                doc.html(cardContent, {
+                    callback: function (doc) {
+                    // Téléchargez le PDF une fois que le contenu a été ajouté
+                    doc.save('carte.pdf');
+                    }
+                });
+            }
             }   
    }
 </script>
@@ -752,8 +621,14 @@ import axios from 'axios';
             border: 1px solid #2c2b2b;
             text-align: left;
         }
+    tbody td{
+        width: 100px!;
+    }
     table{
-        width: 800px!important;
+        width: 990px!important;
+    }
+    .table{
+        width: 990px!important;
     }
     .table3{
         width: 990px!important;

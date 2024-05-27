@@ -78,14 +78,14 @@
                         </template>
                         <template #default="scope">
                             <el-button size="small" @click="modifySpecificObjective(scope.$id, scope.row)">
-                            Edit
+                            supprimer
                             </el-button>
                             <el-button
                             size="small"
                             type="danger"
                             @click="deleteSpecificObjective(scope.$id, scope.row)"
                             >
-                            Delete
+                            modifier
                             </el-button>
                         </template>
                         </el-table-column>
@@ -163,14 +163,14 @@
                     </template>
                     <template #default="scope">
                         <el-button size="small" @click="modifyqualityobjective(scope.$id, scope.row)">
-                        Edit
+                        Modifier
                         </el-button>
                         <el-button
                         size="small"
                         type="danger"
                         @click="deleteQualityObjective(scope.$id, scope.row)"
                         >
-                        Delete
+                        Suprimer
                         </el-button>
                     </template>
                     </el-table-column>
@@ -187,14 +187,14 @@
                 </template> 
                 <template #default="scope">
                     <el-button size="small" @click="modifyCostobjective(scope.$id, scope.row)">
-                    Edit
+                    Modifier
                     </el-button>
                     <el-button
                     size="small"
                     type="danger"
                     @click="deleteCostObjective(scope.$id, scope.row)"
                     >
-                    Delete
+                    Suprimer
                     </el-button>
                 </template>
                 </el-table-column>
@@ -211,14 +211,14 @@
                 </template>
                 <template #default="scope">
                     <el-button size="small" @click="modifydelayobjective(scope.$id, scope.row)">
-                    Edit
+                    Modifier
                     </el-button>
                     <el-button
                     size="small"
                     type="danger"
                     @click=" deletedelayObjective(scope.$id, scope.row)"
                     >
-                    Delete
+                    Suprimer
                     </el-button>
                 </template>
                 </el-table-column>
@@ -251,14 +251,14 @@
             </template>
             <template #default="scope">
                 <el-button size="small" @click="modifyTaskList(scope.$id, scope.row)">
-                Edit
+                Modifier
                 </el-button>
                 <el-button
                 size="small"
                 type="danger"
                 @click=" deleteTaskList(scope.$id, scope.row)"
                 >
-                Delete
+                Suprimer
                 </el-button>
             </template>
             </el-table-column>
@@ -297,18 +297,144 @@
             </template>
             <template #default="scope">
                 <el-button size="small" @click="modifyhumanresource(scope.$id, scope.row)">
-                Edit
+                Modifier
                 </el-button>
                 <el-button
                 size="small"
                 type="danger"
                 @click="deletehumanresource(scope.$id, scope.row)"
                 >
-                Delete
+                Suprimer
                 </el-button>
             </template>
             </el-table-column>
-        </el-table><br>
+        </el-table><br><br>
+        <h6>Mesure de suivi</h6><br>
+            <div class=" pluslists">
+                <p v-for="item in  pluslists" >
+                {{ item.sigle }}={{ item.signification }},
+                </p>
+            </div><br>
+            <div class="tablecontainer">
+                <table>
+                <thead>
+                    <tr>
+                    <th>Actions</th>
+                    <th v-for="( actor, actorIndex) in  humanresources" :key="actorIndex">{{ actor.firstname }} {{ actor.lastname }}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr v-for="(task, taskIndex) in tasks" :key="taskIndex">
+                        <td>{{ task.tasklists }}</td>
+                        <td v-for="(actor, actorIndex) in humanresources" :key="actorIndex">
+                            <select :class="{'select-disabled': selectedTasks[actor.id + '-' + task.id] }"
+                                 v-model="selectedTasks[actor.id + '-' + task.id]"
+                                 @change=" fetchRAChoice(actor.id,task.id)" id="select1" >
+                                <option v-for="(option, optionIndex) in pluslists" :key="optionIndex">{{ option.sigle}}</option>
+                            </select>
+                        </td>
+                    </tr>
+                </tbody>
+                </table>
+            </div><br><br>
+            <h5>Tableau d’action</h5>
+                <div class="qqocq">
+                    <p>Roadmap du cycle ou feuille de route:</p>
+                    <b>Q.Q.O.Q.C.P.C(Qui, Quoi, Où, Quand, Comment, Pourquoi, Combien).</b>
+                </div><br>
+                <div class="tableau_action">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Quoi</th>
+                                <th>Qui</th>
+                                <th>Où</th>
+                                <th>Quand</th>
+                                <th>Comment</th>
+                                <th>Pourquoi</th>
+                                <th>Combien</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="(task, taskId) in tasks">
+                                    <td>{{ task.tasklists }}</td>
+                                    <td class="nom">
+                                        <select :class="{'select-disabled': selectActor[taskId]}" class="select2" 
+                                            name="tableau_action" v-model="selectActor[task.id]" @change="fetchTA(task.id)">
+                                        <option v-for="(item, humanId) in  humanresources":key="humanId">
+                                                {{ item.firstname }} {{item.lastname}}
+                                        </option>
+                                        </select>
+                                    </td>
+                                    <td id="ou">
+                                        <textarea id="area"  rows="2" class="textarea ou" @change=" fetchTA(task.id)" v-model="selectOu[task.id]"></textarea>
+                                    </td>
+                                    <td id="quand">
+                                            Du <input type="date" class="inputdate" required v-model="selectquandD[task.id]"  @change=" fetchTA(task.id)"><br>
+                                            Au <input type="date" class="inputdate"required v-model="selectquandF[task.id]"  @change=" fetchTA(task.id)">                                  
+                                    </td>
+                                    <td>
+                                        <textarea id="area" rows="2" class="textarea comment"  @change=" fetchTA(task.id)" v-model="selectcomment[task.id]"></textarea>
+                                    </td> 
+                                    <td>
+                                        <textarea id="area" rows="2" class="textarea pourquoi"  @change=" fetchTA(task.id)" v-model="selectpourquoi[task.id]"></textarea>
+                                    </td>
+                                    <td>
+                                        <textarea id="area" rows="2" class="textarea combien" @change=" fetchTA(task.id)" v-model="selectcombien[task.id]"></textarea>
+                                    </td>
+                                </tr>
+                            </tbody>
+                    </table>
+                </div><br>
+                </div><br><br>
+                <h5>Tableau de priorité</h5>
+                <div class="tableau_priorité">
+                <table class="table3">
+                    <thead>
+                        <tr>
+                            <th>N°</th>
+                            <th>Actions</th>
+                            <th>Urgent</th>
+                            <th>Important</th>
+                            <th>Priorité</th>
+                            <th>Statut</th>
+                            <th>Délai</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr  v-for="(task, taskId) in tasks":key="taskId">
+                            <td>{{taskId+1}}</td>
+                            <td >
+                                {{ task.tasklists }}
+                            </td>
+                             <td>
+                                <select class="select2" id="" @change= "fetchTP(task.id)" v-model="selecturgent[task.id]">
+                                    <option v-for="option in options" :value="option.value">
+                                        {{ option.label }}
+                                    </option>
+                                </select>
+                            </td>
+                            <td> 
+                                <select class="select2" id="" @change= "fetchTP(task.id)" v-model="selectimportant[task.id]">
+                                    <option v-for="option in options2" :value="option.value">
+                                        {{ option.label }}
+                                    </option>
+                                </select>
+                            </td>
+                             <td>
+                              <p>{{selectpriorite[task.id]}}</p>  
+                            </td> 
+                            <td>
+                                <p>{{selectstatut[task.id]}}</p>  
+                            </td>
+                            <td >
+                              <input type="date" class="inputdate"  @change= "fetchTP(task.id)" v-model="selectdelai[task.id]">  
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+    
         </div>    
     </main>
 </template>
@@ -368,7 +494,30 @@
                 email:"",
                 tel:"",
                 tableDataH:[],
-                id_p:""
+                id_p:"",
+                pluslists:'',
+                selectedTasks:{},
+                selectquandD:{},
+                selectquandF:{},
+                selectcomment:{},
+                selectpourquoi:{},
+                selectcombien:{}, 
+                selecturgent:{},
+                selectimportant:{},
+                selectdelai:{},  
+                selectpriorite:{},   
+                selectstatut:{},
+                selectActor:{},
+                options: [
+                { label: 'urgent', value: 'urgent' },
+                { label: 'Pas urgent', value: 'pas_urgent ' },
+                ],
+                options2: [
+                    { label: 'important', value: 'important' },
+                    { label: 'Pas important', value: 'pas_important ' },
+                ],
+                selectOu:{},
+                    
             }
         },
         computed: {
@@ -418,7 +567,10 @@
             this.readCostObjective();
             this.readDelayObjective();
             this.readTaskList();
-            this.readhumanresource()
+            this.readhumanresource();
+            this.readPlusList();
+            this.readRAChoice();
+            this.readTA()
         },
         methods:{
             sendProjectNameForm(){
@@ -855,6 +1007,7 @@
                 })
                 .then((response)=>{
                     this.tableDataT=response.data;
+                    this.tasks=response.data;
                 }).catch((error)=>{
                     console.log(error)
                 })
@@ -980,6 +1133,124 @@
                     console.log(error)
                 })
             },
+            readPlusList(){
+                var data= new FormData();
+                data.append('id_projet', this.id_projet);
+                axios({
+                    method:'POST',
+                    url:'http://localhost/planaction/projectinfo.php?action=read-plus',
+                    data: data
+                })
+                .then((response)=>{
+                    this.pluslists=response.data;
+                }).catch((error)=>{
+                    console.log(error)
+                })
+            },
+            fetchRAChoice(actorId , taskId){
+                var data= new FormData();
+                data.append('id_projet', this.id_projet);
+                data.append('id_a', actorId);
+                data.append('id_t',taskId);
+                data.append('choice',this.selectedTasks[actorId+'-'+taskId])
+                axios({
+                    method:'POST',
+                    url:'http://localhost/planaction/projectinfo.php?action=create_saveplus',
+                    data:data
+                }).then((response)=>{
+                    this. readRAChoice();
+                }).catch((error)=>{
+                    console.log(error)
+                })
+
+            },
+            readRAChoice(){
+                var data= new FormData();
+                 data.append('id_p', this.id_projet);
+                axios({
+                    method:'POST',
+                    url:'http://localhost/planaction/projectinfo.php?action=read_saveplus',
+                    data:data
+                }).then((response)=>{  
+                    response.data.forEach(item => {
+                        var actorId= item.id_actor;
+                        var taskId= item.id_task;
+                        var choice= item.choice;
+                        // console.log(taskId);console.log(actorId);console.log(choice);
+                        this.selectedTasks[actorId+'-'+taskId]=choice;
+                    });
+                    
+                }).catch((error)=>{
+                    console.log(error)
+                })
+
+            },
+            fetchTA(taskId){
+                var data= new FormData();
+                data.append('id_projet', this.id_projet);
+                data.append('id_t',taskId);
+                data.append('qui',this.selectActor[taskId]),
+                data.append('ou',this.selectOu[taskId]),
+                data.append('quandD',this.selectquandD[taskId]),
+                data.append('quandF',this.selectquandF[taskId]),
+                data.append('comment',this.selectcomment[taskId]),
+                data.append('pourquoi',this.selectpourquoi[taskId]),
+                data.append('combien',this.selectcombien[taskId]),
+                axios({
+                    method:'POST',
+                    url:'http://localhost/planaction/projectinfo.php?action=create_tableauaction',
+                    data:data
+                }).then((response)=>{
+                    this. readTA();
+                    this. readApex();
+                }).catch((error)=>{
+                    console.log(error)
+                })
+
+            },
+            readTA(){
+                var data= new FormData();
+                 data.append('id_p', this.id_projet);
+                axios({
+                    method:'POST',
+                    url:'http://localhost/planaction/projectinfo.php?action=read_tableauaction',
+                    data:data
+                }).then((response)=>{
+                    response.data.forEach(item=>{
+                        var taskId= item.id_task;
+                        this.selectActor[taskId]=item.qui;
+                        if(item.ou=='null'||item.ou=='undefined'){
+                            this.selectOu[taskId]='';
+                        }else{
+                            this.selectOu[taskId]=item.ou;
+                        };
+                        this.selectquandD[taskId]=item.quandD;
+                        this.selectquandF[taskId]=item.quandF;
+                        if(item.comment=='null'||item.comment=='undefined'){
+                            this.selectcomment[taskId]='';
+                        }else{
+                            this.selectcomment[taskId]=item.comment;
+                        };
+                        if(item.pourquoi=='null'||item.pourquoi=='undefined'){
+                            this.selectpourquoi[taskId]='';
+                        }else{
+                            this.selectpourquoi[taskId]=item.pourquoi;
+                        };
+                        if(item.combien=='null'||item.combien=='undefined'){
+                            this.selectcombien[taskId]='';
+                        }else{
+                            this.selectcombien[taskId]=item.combien;
+                        };
+                        
+                        
+                    })
+                    
+                }).catch((error)=>{
+                    console.log(error)
+                })
+
+            },
+            
         }
     }
 
@@ -1018,10 +1289,66 @@
         margin-left: 5px;
     }
     .table {
+        z-index: 1!;
+    }
+    .pluslists{
+        display: flex;
+        gap:20px;
+    }
+    th, td {
+            border: 1px solid #2c2b2b;
+            text-align: left;
+            z-index:2;
+    }
+    .select-disabled {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+     appearance: none; 
+       
+    }
+    .tablecontainer{
+        width: 1085px;
+        margin-left: 20px;
+        overflow-x: auto;
+    }
+    table{
+        z-index: 1;
+    }
+    #select1{
+        border: none;
+        opacity: 0.8;
+        width: 60px;
+        margin-left: 20px;
+    }
+    tbody tr td:first-child, thead tr th:first-child{
+        position: sticky;
+        color:blue;
+        left: 0;
+        background-color: white;
         z-index: 1!important;
+
+    }
+    .select2{
+        border: none;
+        opacity: 0.8;
+        width: auto;
+        outline:none;
+    }
+    .inputdate{
+        border: none;
+        outline:none;
     }
     
-
-    
+    .textarea{
+        border: none;
+        outline:none;
+        height: auto;
+        resize: none;
+    }
+    .inputdate{
+        border: none;
+        outline:none;
+    }
+   
 
 </style>

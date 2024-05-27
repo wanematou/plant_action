@@ -4,7 +4,7 @@
       <router-link to="/" class="text-decoration-none text-white">Plans d'action</router-link>
       </div>
       <div  id="nav2">
-      <router-link to="/newprojet" class="text-decoration-none text-white">Nouveau Plan d'Action</router-link>
+      <router-link to="projectRouter/:id_projet/title" class="text-decoration-none text-white">Nouveau Plan d'Action</router-link>
       </div>
     </div>
   </template>
