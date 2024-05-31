@@ -362,14 +362,20 @@
                             <td>{{ task.tasklists }}</td>
                             <td class="nom">
                                 <button v-if="this.selectV[task.id]" class="sbutton" @click="nameSelect(task.id)">{{ selectActor[task.id] }}</button>
-                                <multiselect v-if="!selectActor[task.id]||selectS[task.id]" v-model="value[task.id]" tag-placeholder=""
+                                <div v-if="!selectActor[task.id]||selectS[task.id]">
+                                    <multiselect v-model="value[task.id]" tag-placeholder=""
                                     placeholder="Ajouter un acteur" @select="fetchTA(task.id)" @remove="fetchTA(task.id)" @update="updateT(task.id)" label="name"
                                     track-by="code" :options="options" :multiple="true">
-                                </multiselect>
+                                    </multiselect>
+                                    <button type="button" class="btn btn-outline-success btnAddActor" @click="multiselectV(task.id)">+</button>
+                                </div>
                             </td>
                             <td id="ou">
-                                <textarea id="area" rows="2" class="textarea ou" @change=" fetchTA(task.id)"
-                                    v-model="selectOu[task.id]"></textarea>
+                                <button type="button" @click="selectouV(task.id)" class="sbutton">{{selectOuS[task.id]}}</button>
+                               <div  v-if="!selectOuS[task.id]||textareaOu[task.id]">
+                                    <textarea id="area" rows="2" class="textarea ou" @change=" fetchTA(task.id)"v-model="selectOu[task.id]"></textarea>
+                                    <button type="button" class="btn btn-outline-secondary btnAddActor" @click="textareaG(task.id)">+</button>
+                               </div>
                             </td>
                             <td id="quand">
                                 Du <input type="date" class="inputdate" required v-model="selectquandD[task.id]"
@@ -526,10 +532,13 @@ export default {
                 { label: 'Pas important', value: 'pas_important ' },
             ],
             selectOu: {},
+            selectOuS:{},
             value: [],
             options: [],
             selectV:{},
             selectS:{},
+            idS:'',
+            textareaOu:{}
         }
     },
     computed: {
@@ -582,7 +591,8 @@ export default {
         this.readhumanresource();
         this.readPlusList();
         this.readRAChoice();
-        this.readTA();
+        this.readTA()
+       
     },
     methods: {    
         sendProjectNameForm() {
@@ -1190,8 +1200,15 @@ export default {
         },
         fetchTA(taskId) {
             var data = new FormData();
-            console.log(this.value[taskId]);
-            var name = this.value[taskId].map(item => item.name);
+            console.log( this.selectActor[taskId]);
+            if(this.value.length==0&&this.selectActor[taskId]=="undefined"){
+               var name= ''
+            }else if(this.value.length==0){
+                var name=this.selectActor[taskId]
+            }
+            else{
+                var name = this.value[taskId].map(item => item.name);
+            }
             data.append('id_projet', this.id_projet);
             data.append('id_t', taskId);
             data.append('qui', name),
@@ -1206,12 +1223,12 @@ export default {
                 url: 'http://localhost/planaction/projectinfo.php?action=create_tableauaction',
                 data: data
             }).then((response) => {
-                this.readTA();
+                this. readTA();
                 this.readApex();
             }).catch((error) => {
                 console.log(error)
             })
-
+                this.idS=taskId;
         },
         readTA() {
             var data = new FormData();
@@ -1228,7 +1245,7 @@ export default {
                     if (item.ou == 'null' || item.ou == 'undefined') {
                         this.selectOu[taskId] = '';
                     } else {
-                        this.selectOu[taskId] = item.ou;
+                        this.selectOuS[taskId] = item.ou;
                     };
                     this.selectquandD[taskId] = item.quandD;
                     this.selectquandF[taskId] = item.quandF;
@@ -1248,26 +1265,39 @@ export default {
                         this.selectcombien[taskId] = item.combien;
                     };
                     this.selectV[taskId]=true;
-                    this.selectS[taskId]=false;
-
                 })
-
+                console.log(this.idS);
+                this.selectV[this.idS]=true;
+                this.selectS[this.idS]=true;
             }).catch((error) => {
                 console.log(error)
             })
 
         },
+       
         nameSelect(taskId){
             this.selectV[taskId]=false;
             this.selectS[taskId]=true;
-            console.log(typeof(this.selectActor[taskId]));
-
             var names = this.selectActor[taskId].split(',');
             this.value[taskId] = names.map(name => {
             return this.options.find(option => option.name === name.trim());
             });
              
+        },
+        multiselectV(taskId){
+            this.selectV[taskId]=true;
+            this.selectS[taskId]=false;
+        },
+        selectouV(taskId){
+            this.textareaOu[taskId]=true;
+            this.selectOu[taskId]= this.selectOuS[taskId];
+        },
+        textareaG(taskId){
+            this.selectV[taskId]=true;
+            this.selectS[taskId]=false;
+            this.textareaOu[taskId]=false;
         }
+        
 
     }
 }
@@ -1379,7 +1409,7 @@ thead tr th:first-child {
 }
 
 .textarea {
-    border: none;
+    border-color:rgb(125, 125, 177) ;
     outline: none;
     height: auto;
     resize: none;
@@ -1393,4 +1423,12 @@ thead tr th:first-child {
     border-style: none;
     background-color: white;
 }
+.btnAddActor{
+    margin-left: 150px;
+    margin-top: 10px;
+    height: 30px;
+    border: none;
+}
+
+
 </style>
