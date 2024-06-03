@@ -127,7 +127,7 @@
                 </div><br>
                 <h5>VI-Tableau de priorité</h5>
                 <div class="tableau_priorité">
-                    <table class="table3">
+                    <table class="table">
                         <thead>
                             <tr>
                                 <th>N°</th>
@@ -683,6 +683,9 @@ table {
 .tableau_action,
 .tableau_priorité {
     margin-left: 50px !important;
+}
+.tableau_priorité{
+    width: 800px!important;
 }
 
 .select-disabled {

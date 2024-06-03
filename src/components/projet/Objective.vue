@@ -361,35 +361,40 @@
                         <tr v-for="(task, taskId) in tasks">
                             <td>{{ task.tasklists }}</td>
                             <td class="nom">
-                                <button v-if="this.selectV[task.id]" class="sbutton" @click="nameSelect(task.id)">{{ selectActor[task.id] }}</button>
+                                <button v-if="this.selectV[task.id]" class="sbutton" @click="updataActor(task.id)">{{ selectActor[task.id] }}</button>
                                 <div v-if="!selectActor[task.id]||selectS[task.id]">
                                     <multiselect v-model="value[task.id]" tag-placeholder=""
-                                    placeholder="Ajouter un acteur" @select="fetchTA(task.id)" @remove="fetchTA(task.id)" @update="updateT(task.id)" label="name"
+                                    placeholder="Ajouter un acteur" @select="sendQuiData(task.id)" @remove="sendQuiData(task.id,'qui')" label="name"
                                     track-by="code" :options="options" :multiple="true">
                                     </multiselect>
                                     <button type="button" class="btn btn-outline-success btnAddActor" @click="multiselectV(task.id)">+</button>
                                 </div>
                             </td>
                             <td id="ou">
-                                <button type="button" @click="selectouV(task.id)" class="sbutton">{{selectOuS[task.id]}}</button>
-                               <div  v-if="!selectOuS[task.id]||textareaOu[task.id]">
-                                    <textarea id="area" rows="2" class="textarea ou" @change=" fetchTA(task.id)"v-model="selectOu[task.id]"></textarea>
-                                    <button type="button" class="btn btn-outline-secondary btnAddActor" @click="textareaG(task.id)">+</button>
-                               </div>
+                                <button v-if="!ouValue[task.id]" type="button" @click="updataOu(task.id)" class="sbutton">{{selectOuS[task.id]}}</button>
+                               <form  @submit.prevent="sendOu(task.id)"  v-if="!selectOuS[task.id]||textareaOu[task.id]">
+                                    <textarea id="area" rows="2" class="textarea ou" v-model="selectOu[task.id]"></textarea>
+                                    <button type="submit" class="btn btn-outline-secondary btnAddActor">+</button>
+                               </form>
                             </td>
                             <td id="quand">
                                 Du <input type="date" class="inputdate" required v-model="selectquandD[task.id]"
-                                    @change=" fetchTA(task.id)"><br>
+                                    @change=" sendquand(task.id)"><br>
                                 Au <input type="date" class="inputdate" required v-model="selectquandF[task.id]"
-                                    @change=" fetchTA(task.id)">
+                                    @change=" sendquand(task.id)">
                             </td>
                             <td>
-                                <textarea id="area" rows="2" class="textarea comment" @change=" fetchTA(task.id)"
-                                    v-model="selectcomment[task.id]"></textarea>
+                                <button @click="updatecomment(task.id)" v-if="!btnComment[task.id]" class="sbutton">{{selectcommentt[task.id]}}</button>
+                                <form @submit.prevent="sendcomment(task.id)" v-if="!selectcommentt[task.id]|| areaComment[task.id]">
+                                    <textarea id="area" rows="2" class="textarea comment" v-model="selectcomment[task.id]"></textarea>
+                                    <button type="submit" class="btn btn-outline-secondary btnAddActor">+</button>
+                                </form>
                             </td>
                             <td>
-                                <textarea id="area" rows="2" class="textarea pourquoi" @change=" fetchTA(task.id)"
-                                    v-model="selectpourquoi[task.id]"></textarea>
+                                <button v-if="!btnPourquoi[task.id]" class="sbutton">{{selectpourquoii[task.id]}}</button>
+                                <form @submit.prevent=" sendpourquoi(taskId)" v-if="!areapourquoi[task.id]">
+                                    <textarea id="area" rows="2" class="textarea pourquoi" v-model="selectpourquoi[task.id]"></textarea>
+                                </form>
                             </td>
                             <td>
                                 <textarea id="area" rows="2" class="textarea combien" @change=" fetchTA(task.id)"
@@ -538,7 +543,17 @@ export default {
             selectV:{},
             selectS:{},
             idS:'',
-            textareaOu:{}
+            textareaOu:{},
+            isMounted: false,
+            ouValue:{},
+            selectquandDD:{},
+            selectquandFF:{},
+            selectcommentt:{},
+            selectpourquoii:{},
+            btnComment:{},
+            areaComment:{},
+            areapourquoi:{},
+            btnPourquoi:{},
         }
     },
     computed: {
@@ -591,7 +606,8 @@ export default {
         this.readhumanresource();
         this.readPlusList();
         this.readRAChoice();
-        this.readTA()
+        this.readTA();
+        this.isMounted = true;
        
     },
     methods: {    
@@ -1198,26 +1214,67 @@ export default {
             })
 
         },
-        fetchTA(taskId) {
+        fetchTA(taskId,) {
             var data = new FormData();
-            console.log( this.selectActor[taskId]);
-            if(this.value.length==0&&this.selectActor[taskId]=="undefined"){
-               var name= ''
-            }else if(this.value.length==0){
-                var name=this.selectActor[taskId]
-            }
-            else{
-                var name = this.value[taskId].map(item => item.name);
-            }
             data.append('id_projet', this.id_projet);
             data.append('id_t', taskId);
-            data.append('qui', name),
-            data.append('ou', this.selectOu[taskId]),
-            data.append('quandD', this.selectquandD[taskId]),
-            data.append('quandF', this.selectquandF[taskId]),
-            data.append('comment', this.selectcomment[taskId]),
-            data.append('pourquoi', this.selectpourquoi[taskId]),
-            data.append('combien', this.selectcombien[taskId]),
+            console.log(this.selectActor[taskId]);
+            console.log(this.selectOu[taskId]);
+           if(this.value.length==0){
+                data.append('qui', this.selectActor[taskId]);
+            }else if(this.selectActor[taskId]==='undefined'){
+                data.append('qui', '');
+            } else{
+                data.append('qui', this.value[taskId].map(item => item.name));
+            }
+
+            if(this.selectOu[taskId]==''){
+                data.append('ou', this.selectOuS[taskId]);
+            }else if(this.selectOuS[taskId]=='undefined'){
+                data.append('ou', '');
+            } else{
+                data.append('ou', this.selectOu[taskId]);
+            }
+
+            if(this.selectquandD[taskId]==''){
+                data.append('quandD', this.selectquandDD[taskId]);
+            }else if(this.selectquandDD[taskId]=='undefined'){
+                data.append('quandD', '');
+            } else{
+                data.append('quandD', this.selectquandD[taskId]);
+            }
+            
+            if(this.selectquandF[taskId]==''){
+                data.append('quandF', this.selectquandFF[taskId]);
+            }else if(this.selectquandFF[taskId]=='undefined'){
+                data.append('quandF', '');
+            } else{
+                data.append('quandF', this.selectquandF[taskId]);
+            }
+                
+            if(this.selectcomment[taskId]==''){
+                data.append('comment',  this.selectcommentt[taskId]);
+            }else if( this.selectcommentt[taskId]=='undefined'){
+                data.append('comment', '');
+            } else{
+                data.append('comment', this.selectcomment[taskId]);
+            }    
+            
+            if(this.selectpourquoi[taskId]==''){
+                data.append('comment', this.selectpourquoii[taskId]);
+            }else if( this.selectpourquoii[taskId]=='undefined'){
+                data.append('comment', '');
+            } else{
+                data.append('pourquoi', this.selectpourquoi[taskId]);
+            }    
+                    
+                
+               
+                    
+                
+                
+                    data.append('combien', this.selectcombien[taskId]);
+               
             axios({
                 method: 'POST',
                 url: 'http://localhost/planaction/projectinfo.php?action=create_tableauaction',
@@ -1240,24 +1297,32 @@ export default {
             }).then((response) => {
                 this.readhumanresource();
                 response.data.forEach(item => {
-                    var taskId = item.id_task;
-                    this.selectActor[taskId] = item.qui;
+                    var taskId = item.id_task;   
+                    if (item.qui == 'null' || item.qui == 'undefined') {
+                        this.selectActor[taskId] = '';
+                    } else {
+                        this.selectActor[taskId] = item.qui;
+                    };
                     if (item.ou == 'null' || item.ou == 'undefined') {
                         this.selectOu[taskId] = '';
                     } else {
                         this.selectOuS[taskId] = item.ou;
                     };
                     this.selectquandD[taskId] = item.quandD;
+                    this.selectquandDD[taskId] = item.quandD;
                     this.selectquandF[taskId] = item.quandF;
+                    this.selectquandFF[taskId] = item.quandF;
                     if (item.comment == 'null' || item.comment == 'undefined') {
                         this.selectcomment[taskId] = '';
                     } else {
                         this.selectcomment[taskId] = item.comment;
+                        this.selectcommentt[taskId]= item.comment;
                     };
                     if (item.pourquoi == 'null' || item.pourquoi == 'undefined') {
                         this.selectpourquoi[taskId] = '';
                     } else {
                         this.selectpourquoi[taskId] = item.pourquoi;
+                        this.selectpourquoii[taskId]= item.pourquoi;
                     };
                     if (item.combien == 'null' || item.combien == 'undefined') {
                         this.selectcombien[taskId] = '';
@@ -1267,15 +1332,26 @@ export default {
                     this.selectV[taskId]=true;
                 })
                 console.log(this.idS);
-                this.selectV[this.idS]=true;
-                this.selectS[this.idS]=true;
+                    if (this.isMounted) {
+                    this.selectV[this.idS] = true;
+                    this.selectS[this.idS] = true;
+                    this.isMounted = false;
+                }
             }).catch((error) => {
                 console.log(error)
             })
 
         },
-       
-        nameSelect(taskId){
+        sendQuiData(taskId){
+            this. fetchTA(taskId);
+            this.selectS[taskId]=true;
+            this.selectV[taskId]=true;
+        },
+        multiselectV(taskId){
+            this.selectV[taskId]=true;
+            this.selectS[taskId]=false;
+        },
+        updataActor(taskId){
             this.selectV[taskId]=false;
             this.selectS[taskId]=true;
             var names = this.selectActor[taskId].split(',');
@@ -1283,20 +1359,48 @@ export default {
             return this.options.find(option => option.name === name.trim());
             });
              
-        },
-        multiselectV(taskId){
-            this.selectV[taskId]=true;
-            this.selectS[taskId]=false;
-        },
-        selectouV(taskId){
-            this.textareaOu[taskId]=true;
-            this.selectOu[taskId]= this.selectOuS[taskId];
-        },
-        textareaG(taskId){
-            this.selectV[taskId]=true;
+        },   
+        sendOu(taskId){
+            this. fetchTA(taskId);
             this.selectS[taskId]=false;
             this.textareaOu[taskId]=false;
-        }
+            this.selectV[taskId]=true; 
+            this.ouValue[taskId]=false;
+        },     
+        updataOu(taskId){
+            this.textareaOu[taskId]=true;
+            this.selectOu[taskId]= this.selectOuS[taskId];
+            this.ouValue[taskId]=true;
+        },
+        sendquand(taskId){
+            this. fetchTA(taskId);
+            this.selectS[taskId]=false;
+            this.textareaOu[taskId]=false;
+            this.selectV[taskId]=true; 
+        },
+        sendcomment(taskId){
+            this. fetchTA(taskId);
+            this.selectS[taskId]=false;
+            this.textareaOu[taskId]=false;
+            this.selectV[taskId]=true; 
+            this.areaComment[taskId]=false;
+            this.btnComment[taskId]=false;
+        },
+        updatecomment(taskId){
+            this.areaComment[taskId]=true;
+            this.selectcomment[taskId]=this.selectcommentt[taskId];
+            this.btnComment[taskId]=true;
+        },
+        sendpourquoi(taskId){
+            this. fetchTA(taskId);
+            this.selectS[taskId]=false;
+            this.textareaOu[taskId]=false;
+            this.selectV[taskId]=true; 
+            this.areaComment[taskId]=true;
+            this.btnPourquoi[taskId]=false;
+            this.areapourquoi[taskId]=true;
+        },
+        
         
 
     }
@@ -1410,6 +1514,7 @@ thead tr th:first-child {
 
 .textarea {
     border-color:rgb(125, 125, 177) ;
+    margin: 5px;
     outline: none;
     height: auto;
     resize: none;
