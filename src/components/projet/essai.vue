@@ -6,6 +6,8 @@
         <p>{{ getSelectedNames().join(', ') }}</p>
         
     </div> 
+
+    
 </template>
 
 <script>

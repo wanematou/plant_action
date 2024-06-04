@@ -502,9 +502,7 @@ export default {
 
         },
         autoResize(id, taskId) {
-            // Récupérer l'élément textarea
             const textarea = document.getElementById('area')
-            // Ajuster la hauteur
             textarea.style.height = 'auto';
             textarea.style.height = (textarea.scrollHeight) + 'px';
         },

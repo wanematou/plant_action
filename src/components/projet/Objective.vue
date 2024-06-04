@@ -313,6 +313,7 @@
                 <p v-for="item in  pluslists">
                     {{ item.sigle }}={{ item.signification }},
                 </p>
+                <button type="button" class="btn btn-outline-success btn-sm mb-2">Ajouter une mesure de suivi</button>
             </div><br>
             <div class="tablecontainer">
                 <table>
@@ -344,7 +345,7 @@
                 <p>Roadmap du cycle ou feuille de route:</p>
                 <b>Q.Q.O.Q.C.P.C(Qui, Quoi, Où, Quand, Comment, Pourquoi, Combien).</b>
             </div><br>
-            <div class="tableau_action">
+            <div class="tablecontainer">
                 <table>
                     <thead>
                         <tr>
@@ -355,58 +356,65 @@
                             <th>Comment</th>
                             <th>Pourquoi</th>
                             <th>Combien</th>
+                            <th>Action</th>
+                            <th>Notifications</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr v-for="(task, taskId) in tasks">
                             <td>{{ task.tasklists }}</td>
-                            <td class="nom">
-                                <button v-if="this.selectV[task.id]" class="sbutton" @click="updataActor(task.id)">{{ selectActor[task.id] }}</button>
-                                <div v-if="!selectActor[task.id]||selectS[task.id]">
+                            <td >
+                                <span v-if="selectActor[task.id]" class="sbutton">{{ selectActor[task.id] }}</span>
+                                <div  v-if="!selectActor[task.id]||modify[task.id]" class="multiselect">
                                     <multiselect v-model="value[task.id]" tag-placeholder=""
-                                    placeholder="Ajouter un acteur" @select="sendQuiData(task.id)" @remove="sendQuiData(task.id,'qui')" label="name"
+                                    placeholder="Ajouter un acteur" @select="" @remove="" label="name"
                                     track-by="code" :options="options" :multiple="true">
                                     </multiselect>
-                                    <button type="button" class="btn btn-outline-success btnAddActor" @click="multiselectV(task.id)">+</button>
                                 </div>
                             </td>
                             <td id="ou">
-                                <button v-if="!ouValue[task.id]" type="button" @click="updataOu(task.id)" class="sbutton">{{selectOuS[task.id]}}</button>
-                               <form  @submit.prevent="sendOu(task.id)"  v-if="!selectOuS[task.id]||textareaOu[task.id]">
-                                    <textarea id="area" rows="2" class="textarea ou" v-model="selectOu[task.id]"></textarea>
-                                    <button type="submit" class="btn btn-outline-secondary btnAddActor">+</button>
-                               </form>
+                               <span v-if="selectOuS[task.id]" type="button" class="sbutton">{{selectOuS[task.id]}}</span>
+                                <input v-if="!selectOuS[task.id]||modify[task.id]" id="input" class="input" v-model="selectOu[task.id]"></input>                              
                             </td>
                             <td id="quand">
                                 Du <input type="date" class="inputdate" required v-model="selectquandD[task.id]"
-                                    @change=" sendquand(task.id)"><br>
+                                    @change=" "><br>
                                 Au <input type="date" class="inputdate" required v-model="selectquandF[task.id]"
-                                    @change=" sendquand(task.id)">
+                                    @change="">
                             </td>
                             <td>
-                                <button @click="updatecomment(task.id)" v-if="!btnComment[task.id]" class="sbutton">{{selectcommentt[task.id]}}</button>
-                                <form @submit.prevent="sendcomment(task.id)" v-if="!selectcommentt[task.id]|| areaComment[task.id]">
-                                    <textarea id="area" rows="2" class="textarea comment" v-model="selectcomment[task.id]"></textarea>
-                                    <button type="submit" class="btn btn-outline-secondary btnAddActor">+</button>
-                                </form>
+                                <span @click="" v-if="selectcommentt[task.id]" class="sbutton">{{selectcommentt[task.id]}}</span>
+                                <input  v-if="!selectcommentt[task.id]||modify[task.id]" id="input" @input="autoResize(task.id)" class="input" v-model="selectcomment[task.id]"></input>
+                                
                             </td>
                             <td>
-                                <button v-if="!btnPourquoi[task.id]" class="sbutton">{{selectpourquoii[task.id]}}</button>
-                                <form @submit.prevent=" sendpourquoi(taskId)" v-if="!areapourquoi[task.id]">
-                                    <textarea id="area" rows="2" class="textarea pourquoi" v-model="selectpourquoi[task.id]"></textarea>
-                                </form>
+                                <span v-if="selectpourquoii[task.id]" class="sbutton">{{selectpourquoii[task.id]}}</span>
+                                <input v-if="!selectpourquoii[task.id]||modify[task.id]" id="input" class="input" v-model="selectpourquoi[task.id]"></input>
+                                
                             </td>
                             <td>
-                                <textarea id="area" rows="2" class="textarea combien" @change=" fetchTA(task.id)"
-                                    v-model="selectcombien[task.id]"></textarea>
+                                <span v-if="selectcombienn[task.id]" class="sbutton">{{selectcombienn[task.id]}}</span>
+                                <input v-if="!selectcombienn[task.id]||modify[task.id]" id="input" class="input" @change="" v-model="selectcombien[task.id]"></input>
+                            </td>
+                            <td>
+                                <div class="btnbtn">
+                                    <button v-if="!enregistrer[task.id]" @click="fetchTA(task.id)" type="button" class="btn btn-outline-success btn-sm mb-2">Enregistrer</button>
+                                    <button v-if="enregistrer[task.id]" @click=" updateTA(task.id)" type="button" class="btn btn-outline-success btn-sm mb-2">Enregistrer la modification</button>
+                                    <button @click="modifyTa(task.id)" type="button" class="btn btn-outline-primary btn-sm mb-2">Modifier</button>
+                                </div>
+                            </td>
+                            <td >
+                                <div class="btnbtnn">
+                                    <button type="button" class="btn btn-outline-info btn-sm mb-2">Notifier</button>
+                                </div>
                             </td>
                         </tr>
                     </tbody>
                 </table>
             </div><br>
         </div><br><br>
-        <h5>Tableau de priorité</h5>
-        <div class="tableau_priorité">
+        <h5 class="priorité">Tableau de priorité</h5>
+        <div >
             <table class="table3">
                 <thead>
                     <tr>
@@ -446,8 +454,7 @@
                             <p>{{ selectstatut[task.id] }}</p>
                         </td>
                         <td>
-                            <input type="date" class="inputdate" @change="fetchTP(task.id)"
-                                v-model="selectdelai[task.id]">
+                            <span>{{selectquandF[task.id]}}</span>
                         </td>
                     </tr>
                 </tbody>
@@ -459,7 +466,7 @@
 </template>
 <script>
 import axios from 'axios';
-import Multiselect from 'vue-multiselect'
+import Multiselect from 'vue-multiselect';
 export default {
     components: { Multiselect },
     props: ['id_projet'],
@@ -524,7 +531,6 @@ export default {
             selectcombien: {},
             selecturgent: {},
             selectimportant: {},
-            selectdelai: {},
             selectpriorite: {},
             selectstatut: {},
             selectActor: {},
@@ -543,17 +549,15 @@ export default {
             selectV:{},
             selectS:{},
             idS:'',
-            textareaOu:{},
             isMounted: false,
-            ouValue:{},
             selectquandDD:{},
             selectquandFF:{},
             selectcommentt:{},
             selectpourquoii:{},
-            btnComment:{},
-            areaComment:{},
-            areapourquoi:{},
-            btnPourquoi:{},
+            selectcombienn:{},
+            modify:{},
+            enregistrer:{},
+            idp:'',
         }
     },
     computed: {
@@ -755,8 +759,9 @@ export default {
                 data: data
             })
                 .then((response) => {
-                    this.specificobjectives = response.data;
-                    this.tableData = response.data
+                    this.specificobjectives = JSON.stringify(response.data);
+                    console.log( this.specificobjectives);
+                    this.tableData = response.data;
                 }).catch((error) => {
                     console.log(error)
                 })
@@ -1214,12 +1219,11 @@ export default {
             })
 
         },
-        fetchTA(taskId,) {
+        fetchTA(taskId) {
             var data = new FormData();
             data.append('id_projet', this.id_projet);
             data.append('id_t', taskId);
-            console.log(this.selectActor[taskId]);
-            console.log(this.selectOu[taskId]);
+            console.log(this.value[taskId]);
            if(this.value.length==0){
                 data.append('qui', this.selectActor[taskId]);
             }else if(this.selectActor[taskId]==='undefined'){
@@ -1268,12 +1272,7 @@ export default {
                 data.append('pourquoi', this.selectpourquoi[taskId]);
             }    
                     
-                
-               
-                    
-                
-                
-                    data.append('combien', this.selectcombien[taskId]);
+            data.append('combien', this.selectcombien[taskId]);
                
             axios({
                 method: 'POST',
@@ -1281,7 +1280,6 @@ export default {
                 data: data
             }).then((response) => {
                 this. readTA();
-                this.readApex();
             }).catch((error) => {
                 console.log(error)
             })
@@ -1298,6 +1296,7 @@ export default {
                 this.readhumanresource();
                 response.data.forEach(item => {
                     var taskId = item.id_task;   
+                    this.idp= item.id;
                     if (item.qui == 'null' || item.qui == 'undefined') {
                         this.selectActor[taskId] = '';
                     } else {
@@ -1328,78 +1327,101 @@ export default {
                         this.selectcombien[taskId] = '';
                     } else {
                         this.selectcombien[taskId] = item.combien;
+                        this.selectcombienn[taskId] = item.combien;
                     };
-                    this.selectV[taskId]=true;
                 })
-                console.log(this.idS);
-                    if (this.isMounted) {
-                    this.selectV[this.idS] = true;
-                    this.selectS[this.idS] = true;
-                    this.isMounted = false;
-                }
+               
             }).catch((error) => {
                 console.log(error)
             })
 
         },
-        sendQuiData(taskId){
-            this. fetchTA(taskId);
-            this.selectS[taskId]=true;
-            this.selectV[taskId]=true;
+        modifyTa(taskId){
+            this.modify[taskId]=true;
+            var names=this.selectActor[taskId].split(',');
+            this.value[taskId]= names.map(name =>{
+                return this.options.find(option=>option.name === name.trim())
+            })
+            this.selectOu[taskId] =this.selectOuS[taskId];
+            this.selectcomment[taskId] =this.selectcommentt[taskId];
+            this.selectpourquoi[taskId] =this.selectpourquoii[taskId];
+            this.selectcombien[taskId]=this.selectcombienn[taskId];
+            this.enregistrer[taskId]=true;
         },
-        multiselectV(taskId){
-            this.selectV[taskId]=true;
-            this.selectS[taskId]=false;
+        updateTA(taskId){
+            var data = new FormData();
+            data.append('id', this.idp);
+            data.append('qui', this.value[taskId].map(item => item.name));
+            data.append('ou', this.selectOu[taskId]);
+            data.append('quandD', this.selectquandD[taskId]);
+            data.append('quandF', this.selectquandF[taskId]);
+            data.append('comment', this.selectcomment[taskId]);
+            data.append('pourquoi', this.selectpourquoi[taskId]);
+            data.append('combien', this.selectcombien[taskId]);              
+            axios({
+                method: 'POST',
+                url: 'http://localhost/planaction/projectinfo.php?action=update_tableauaction',
+                data: data
+            }).then((response) => {
+                this. readTA();
+                this.modify[taskId]=false;
+                this.enregistrer[taskId]=false;
+            }).catch((error) => {
+                console.log(error)
+            })
+                this.idS=taskId;
         },
-        updataActor(taskId){
-            this.selectV[taskId]=false;
-            this.selectS[taskId]=true;
-            var names = this.selectActor[taskId].split(',');
-            this.value[taskId] = names.map(name => {
-            return this.options.find(option => option.name === name.trim());
-            });
-             
-        },   
-        sendOu(taskId){
-            this. fetchTA(taskId);
-            this.selectS[taskId]=false;
-            this.textareaOu[taskId]=false;
-            this.selectV[taskId]=true; 
-            this.ouValue[taskId]=false;
-        },     
-        updataOu(taskId){
-            this.textareaOu[taskId]=true;
-            this.selectOu[taskId]= this.selectOuS[taskId];
-            this.ouValue[taskId]=true;
+        fetchTP(taskId) {
+            var data = new FormData();
+            data.append('id_projet', this.id_projet);
+            data.append('task_id', taskId);
+            data.append('urgent', this.selecturgent[taskId]);
+            data.append('important', this.selectimportant[taskId]);
+            data.append('priorite', this.selectpriorite[taskId]);
+            axios({
+                method: 'POST',
+                url: 'http://localhost/planaction/projectinfo.php?action=create_priorite',
+                data: data
+            }).then((response) => {
+                console.log(response.data);
+                this.readTP();
+            }).catch((error) => {
+                console.log(error)
+            })
+
         },
-        sendquand(taskId){
-            this. fetchTA(taskId);
-            this.selectS[taskId]=false;
-            this.textareaOu[taskId]=false;
-            this.selectV[taskId]=true; 
+        readTP() {
+            var data = new FormData();
+            data.append('id_p', this.id_projet);
+            axios({
+                method: 'POST',
+                url: 'http://localhost/planaction/projectinfo.php?action=read_priorite',
+                data: data
+            }).then((response) => {
+                response.data.forEach(item => {
+                    var taskId = item.task_id;
+                    this.selecturgent[taskId] = item.urgent;
+                    this.selectimportant[taskId] = item.important;
+                    if (item.urgent == "urgent" & item.important == "important") {
+                        this.selectpriorite[taskId] = 'X';
+                    } else {
+                        this.selectpriorite[taskId] = '';
+                    };
+                    if (item.urgent == "urgent" & item.important == "important") {
+                        this.selectstatut[taskId] = 'P1';
+                    } else {
+                        this.selectstatut[taskId] = 'P2';
+                    };
+
+
+                })
+            }).catch((error) => {
+                console.log(error)
+            })
+
         },
-        sendcomment(taskId){
-            this. fetchTA(taskId);
-            this.selectS[taskId]=false;
-            this.textareaOu[taskId]=false;
-            this.selectV[taskId]=true; 
-            this.areaComment[taskId]=false;
-            this.btnComment[taskId]=false;
-        },
-        updatecomment(taskId){
-            this.areaComment[taskId]=true;
-            this.selectcomment[taskId]=this.selectcommentt[taskId];
-            this.btnComment[taskId]=true;
-        },
-        sendpourquoi(taskId){
-            this. fetchTA(taskId);
-            this.selectS[taskId]=false;
-            this.textareaOu[taskId]=false;
-            this.selectV[taskId]=true; 
-            this.areaComment[taskId]=true;
-            this.btnPourquoi[taskId]=false;
-            this.areapourquoi[taskId]=true;
-        },
+        
+           
         
         
 
@@ -1461,7 +1483,7 @@ export default {
 
 th,
 td {
-    border: 1px solid #2c2b2b;
+    border: 1px solid #a3a1a1;
     text-align: left;
     z-index: 2;
 }
@@ -1478,6 +1500,10 @@ td {
     margin-left: 20px;
     overflow-x: auto;
 }
+.table3{
+    width: 1085px;
+    margin-left: 70px;
+}
 
 table {
     z-index: 1;
@@ -1488,12 +1514,12 @@ table {
     opacity: 0.8;
     width: 60px;
     margin-left: 20px;
+    color: rgb(97, 94, 94);
 }
 
 tbody tr td:first-child,
 thead tr th:first-child {
     position: sticky;
-    color: blue;
     left: 0;
     background-color: white;
     z-index: 1 !important;
@@ -1512,17 +1538,23 @@ thead tr th:first-child {
     outline: none;
 }
 
-.textarea {
-    border-color:rgb(125, 125, 177) ;
+.input {
     margin: 5px;
     outline: none;
-    height: auto;
-    resize: none;
+    border: 1px solid #e7e6e6;
+    border-radius: 5%;
+    height: 40px;
+    overflow-y: scroll!important;
+    text-wrap: balance;
 }
 
 .inputdate {
     border: none;
     outline: none;
+    color: rgb(97, 94, 94);
+}
+#quand{
+    color: rgb(97, 94, 94);
 }
 .sbutton{
     border-style: none;
@@ -1534,6 +1566,21 @@ thead tr th:first-child {
     height: 30px;
     border: none;
 }
-
+.btnbtn{
+    display: flex;
+    gap:2px;
+    margin-top: 35px;
+    border: none!important;
+}
+.btnbtnn{
+    margin-top: 35px;
+}
+.multiselect{
+    width: 200px!important;
+    border:none;
+}
+.priorité{
+    margin-left: 40px;
+}
 
 </style>
