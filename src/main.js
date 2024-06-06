@@ -7,6 +7,7 @@ import 'vue3-easy-data-table/dist/style.css';
 import router from './router/projectRouter'
 import 'bootstrap/dist/css/bootstrap.min.css'; 
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
+import 'bootstrap/dist/js/bootstrap.bundle.js';
 import 'bootstrap-icons/font/bootstrap-icons.css';
 import ElementPlus from 'element-plus';
 import 'element-plus/dist/index.css';

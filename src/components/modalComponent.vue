@@ -20,11 +20,11 @@
               <form @submit.prevent="submitForm">
                 <div class="form-group">
                   <label for="measureName">Nom de la mesure</label>
-                  <input type="text" class="form-control" id="measureName" v-model="formData.measureName" required>
+                  <input name="signification" type="text" class="form-control" id="measureName" v-model="formData.measureName" required>
                 </div>
                 <div class="form-group">
-                  <label for="measureValue">Valeur de la mesure</label>
-                  <input type="text" class="form-control" id="measureValue" v-model="formData.measureValue" required>
+                  <label for="measureValue">Sigle de la mesure</label>
+                  <input name="sigle" type="text" class="form-control" id="measureValue" v-model="formData.measureValue" required>
                 </div>
                 <button type="submit" class="btn btn-primary" id="btn">Envoyer</button>
               </form>
@@ -39,6 +39,17 @@
   
   <script>
   export default {
+    props: {
+    onSubmit: {
+    type: Function,
+    required: true
+    },
+    id_projet: {
+        type: String, // ou le type approprié
+        required: true
+    },
+    
+    },
     data() {
       return {
         showModal: false,
@@ -49,15 +60,20 @@
       };
     },
     methods: {
-      submitForm() {
-        // Logique pour gérer l'envoi du formulaire
-        console.log('Form submitted:', this.formData);
-        // Fermer le modal après l'envoi
-        this.showModal = false;
-        // Réinitialiser les données du formulaire
-        this.formData.measureName = '';
-        this.formData.measureValue = '';
-      }
+    async submitForm() {
+        var data= new FormData();
+        data.append('signification',this.formData.measureName);
+        data.append('sigle',this.formData.measureValue);
+        data.append('id_projet',this.id_projet);
+        await this.onSubmit(data);
+        try {
+            this.showModal = false;
+            this.formData.measureName = '';
+            this.formData.measureValue = '';
+        } catch (error) {
+            console.error('Error submitting form:', error);
+        }
+        }
     }
   };
   </script>

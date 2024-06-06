@@ -309,11 +309,21 @@
                 </el-table-column>
             </el-table><br><br>
             <h6>Mesure de suivi</h6><br>
+            <div class=" pluslistss">
+                <p v-for="item in pluslists">{{ item.sigle }}={{ item.signification }},</p>
+            </div>
             <div class=" pluslists">
-                <p v-for="item in  pluslists">
-                    {{ item.sigle }}={{ item.signification }},
+                <p v-for="item in pluslistss">
+                    <div class="dropdown">
+                        <button id="pluslist" class="dropbtn">{{ item.sigle }}={{ item.signification }},</button>
+                        <div class="dropdown-content">
+                            <button @click="deletePlusList(item.id)">Supprimer</button>
+                        </div>
+                </div>
                 </p>
-                <button type="button" class="btn btn-outline-success btn-sm mb-2">Ajouter une mesure de suivi</button>
+                <ModalComponent :onSubmit="fetchPlusList"
+                                :id_projet="id_projet" 
+                                />
             </div><br>
             <div class="tablecontainer">
                 <table>
@@ -321,8 +331,7 @@
                         <tr>
                             <th>Actions</th>
                             <th v-for="( actor, actorIndex) in  humanresources" :key="actorIndex">{{ actor.firstname }}
-                                {{
-                    actor.lastname }}</th>
+                                {{actor.lastname }}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -332,8 +341,8 @@
                                 <select :class="{ 'select-disabled': selectedTasks[actor.id + '-' + task.id] }"
                                     v-model="selectedTasks[actor.id + '-' + task.id]"
                                     @change=" fetchRAChoice(actor.id, task.id)" id="select1">
-                                    <option v-for="(option, optionIndex) in pluslists" :key="optionIndex">{{
-                    option.sigle }}</option>
+                                    <option v-for="(option, optionIndex) in pluslistsss" :key="optionIndex">{{
+                                        option.sigle }}</option>
                                 </select>
                             </td>
                         </tr>
@@ -365,9 +374,9 @@
                             <td>{{ task.tasklists }}</td>
                             <td >
                                 <span v-if="selectActor[task.id]" class="sbutton">{{ selectActor[task.id] }}</span>
-                                <div  v-if="!selectActor[task.id]||modify[task.id]" class="multiselect">
-                                    <multiselect v-model="value[task.id]" tag-placeholder=""
-                                    placeholder="Ajouter un acteur" @select="" @remove="" label="name"
+                                <div  v-if="!selectActor[task.id]||modify[task.id]">
+                                    <multiselect v-model="value[task.id]" tag-placeholder="" @select="readTaskListt(task.id)"
+                                    placeholder="Ajouter un acteur"  label="name"
                                     track-by="code" :options="options" :multiple="true">
                                     </multiselect>
                                 </div>
@@ -384,7 +393,7 @@
                             </td>
                             <td>
                                 <span @click="" v-if="selectcommentt[task.id]" class="sbutton">{{selectcommentt[task.id]}}</span>
-                                <input  v-if="!selectcommentt[task.id]||modify[task.id]" id="input" @input="autoResize(task.id)" class="input" v-model="selectcomment[task.id]"></input>
+                                <input  v-if="!selectcommentt[task.id]||modify[task.id]" id="input"  class="input" v-model="selectcomment[task.id]"></input>
                                 
                             </td>
                             <td>
@@ -405,7 +414,7 @@
                             </td>
                             <td >
                                 <div class="btnbtnn">
-                                    <button type="button" class="btn btn-outline-info btn-sm mb-2">Notifier</button>
+                                    <button @click="sendMail(task.id)" type="button" class="btn btn-outline-info btn-sm mb-2">Notifier</button>
                                 </div>
                             </td>
                         </tr>
@@ -467,8 +476,9 @@
 <script>
 import axios from 'axios';
 import Multiselect from 'vue-multiselect';
+import ModalComponent from '@/components/modalComponent.vue'
 export default {
-    components: { Multiselect },
+    components: { Multiselect, ModalComponent },
     props: ['id_projet'],
     data() {
         return {
@@ -556,9 +566,13 @@ export default {
             selectpourquoii:{},
             selectcombienn:{},
             modify:{},
+            pluslistss:'',
             enregistrer:{},
             idp:'',
-        }
+            pluslistsss:'',
+            taskss:"",
+            projetname:""
+        }       
     },
     computed: {
         filterTableData() {
@@ -611,8 +625,10 @@ export default {
         this.readPlusList();
         this.readRAChoice();
         this.readTA();
+        this.readTP();
+        this.readPlussList();
         this.isMounted = true;
-       
+        this. readPlusssList();
     },
     methods: {    
         sendProjectNameForm() {
@@ -647,6 +663,9 @@ export default {
             })
                 .then((response) => {
                     this.projectnames = response.data;
+                    response.data.forEach(item=>{
+                        this.projetname= item.projectname;
+                    })
                 }).catch((error) => {
                     console.log(error)
                 })
@@ -760,7 +779,6 @@ export default {
             })
                 .then((response) => {
                     this.specificobjectives = JSON.stringify(response.data);
-                    console.log( this.specificobjectives);
                     this.tableData = response.data;
                 }).catch((error) => {
                     console.log(error)
@@ -1099,7 +1117,7 @@ export default {
                         this.first_name = "",
                         this.last_name = "",
                         this.email = "";
-                    this.tel = ""
+                        this.tel = ""
                 }).catch((error) => {
                     console.log(error)
                 })
@@ -1117,8 +1135,8 @@ export default {
                     this.humanresources = response.data;
                     response.data.forEach(item => {
                         var name = item.firstname + ' ' + item.lastname;
-                        var id = item.id;
-                        this.options.push({ name: name, code: id });       
+                        var email = item.email;
+                        this.options.push({ name: name, code: email });       
                     })
                 }).catch((error) => {
                     console.log(error)
@@ -1169,15 +1187,40 @@ export default {
                 })
         },
         readPlusList() {
+            axios({
+                method: 'POST',
+                url: 'http://localhost/planaction/projectinfo.php?action=read-plus',
+            })
+                .then((response) => {
+                    this.pluslists = response.data;
+                }).catch((error) => {
+                    console.log(error)
+                })
+        },
+        readPlussList() {
             var data = new FormData();
             data.append('id_projet', this.id_projet);
             axios({
                 method: 'POST',
-                url: 'http://localhost/planaction/projectinfo.php?action=read-plus',
+                url: 'http://localhost/planaction/projectinfo.php?action=read-pluss',
                 data: data
             })
                 .then((response) => {
-                    this.pluslists = response.data;
+                    this.pluslistss = response.data;        
+                }).catch((error) => {
+                    console.log(error)
+                })
+        },
+        readPlusssList() {
+            var data = new FormData();
+            data.append('id_projet', this.id_projet);
+            axios({
+                method: 'POST',
+                url: 'http://localhost/planaction/projectinfo.php?action=read-plusss',
+                data: data
+            })
+                .then((response) => {
+                    this.pluslistsss = response.data;        
                 }).catch((error) => {
                     console.log(error)
                 })
@@ -1219,7 +1262,26 @@ export default {
             })
 
         },
-        fetchTA(taskId) {
+        readTaskListt(taskId) {
+            var data = new FormData();
+            data.append("id_projet", this.id_projet);
+            data.append("taskId", taskId);
+            axios({
+                method: 'POST',
+                url: 'http://localhost/planaction/projectinfo.php?action=read-tasklistt',
+                data: data
+            })
+               .then((response) => {
+                  response.data.forEach(item=>{
+                    this.taskss=item.tasklists
+                  })
+                }).catch((error) => {
+                    console.log(error)
+                })
+        },
+        async fetchTA(taskId) {    
+            console.log(this.taskss);
+            console.log(this.projetname);
             var data = new FormData();
             data.append('id_projet', this.id_projet);
             data.append('id_t', taskId);
@@ -1231,7 +1293,9 @@ export default {
             } else{
                 data.append('qui', this.value[taskId].map(item => item.name));
             }
-
+            data.append('email', this.value[taskId].map(item => item.code));
+            data.append('project', this.taskss);
+            data.append('task', this.projetname);
             if(this.selectOu[taskId]==''){
                 data.append('ou', this.selectOuS[taskId]);
             }else if(this.selectOuS[taskId]=='undefined'){
@@ -1274,7 +1338,7 @@ export default {
                     
             data.append('combien', this.selectcombien[taskId]);
                
-            axios({
+            await axios({
                 method: 'POST',
                 url: 'http://localhost/planaction/projectinfo.php?action=create_tableauaction',
                 data: data
@@ -1352,12 +1416,14 @@ export default {
             var data = new FormData();
             data.append('id', this.idp);
             data.append('qui', this.value[taskId].map(item => item.name));
+            data.append('email', this.value[taskId].map(item => item.code));
             data.append('ou', this.selectOu[taskId]);
             data.append('quandD', this.selectquandD[taskId]);
             data.append('quandF', this.selectquandF[taskId]);
             data.append('comment', this.selectcomment[taskId]);
             data.append('pourquoi', this.selectpourquoi[taskId]);
-            data.append('combien', this.selectcombien[taskId]);              
+            data.append('combien', this.selectcombien[taskId]);
+            console.log( data);              
             axios({
                 method: 'POST',
                 url: 'http://localhost/planaction/projectinfo.php?action=update_tableauaction',
@@ -1378,6 +1444,7 @@ export default {
             data.append('urgent', this.selecturgent[taskId]);
             data.append('important', this.selectimportant[taskId]);
             data.append('priorite', this.selectpriorite[taskId]);
+            console.log( data);
             axios({
                 method: 'POST',
                 url: 'http://localhost/planaction/projectinfo.php?action=create_priorite',
@@ -1420,10 +1487,52 @@ export default {
             })
 
         },
-        
-           
-        
-        
+        async fetchPlusList(formData){
+                await axios({
+                    method:'POST',
+                    url:'http://localhost/planaction/projectinfo.php?action=create_plus',
+                    data: formData
+                })
+                .then((response)=>{
+                    this.readPlussList();
+                }).catch((error)=>{
+                    console.log(error)
+                })
+
+            },
+            
+            deletePlusList(itemId){
+                var data= new FormData();
+                data.append("id", itemId);
+                data.append("id_projet", this.id_projet)
+                axios({
+                    method:'POST',
+                    url:'http://localhost/planaction/projectinfo.php?action=delete_plus',
+                    data: data
+                })
+                .then((response)=>{
+                    this.readPlussList();
+                }).catch((error)=>{
+                    console.log(error)
+                })
+
+            },
+            sendMail(taskId){
+                var data= new FormData();
+                data.append("taskId", taskId);
+                data.append("id_projet", this.id_projet)
+                axios({
+                    method:'POST',
+                    url:'http://localhost/planaction/phpmailer.php?action=send_mail',
+                    data: data
+                })
+                .then((response)=>{
+                  console.log(response.data)
+                }).catch((error)=>{
+                    console.log(error)
+                })
+ 
+            }
 
     }
 }
@@ -1476,13 +1585,9 @@ export default {
     z-index: 1 !;
 }
 
-.pluslists {
-    display: flex;
-    gap: 20px;
-}
 
 th,
-td {
+td,tr {
     border: 1px solid #a3a1a1;
     text-align: left;
     z-index: 2;
@@ -1522,7 +1627,7 @@ thead tr th:first-child {
     position: sticky;
     left: 0;
     background-color: white;
-    z-index: 1 !important;
+    z-index: 2 !important;
 
 }
 
@@ -1581,6 +1686,75 @@ thead tr th:first-child {
 }
 .priorité{
     margin-left: 40px;
+}
+#pluslist{
+    border:none;
+    background-color: white;
+}
+.pluslists{
+    display:flex;
+}
+.pluslistss{
+    display:flex;
+    gap: 10px;
+}
+.dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.dropbtn {
+    background-color: #fafcfd;
+    padding: 10px;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: #f9f9f9;
+    min-width: 160px;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2)!important;
+    z-index: 10;
+}
+
+.dropdown-content button {
+    background-color: white;
+    color: black;
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+    border: none;
+    text-align: left;
+    width: 100%;
+}
+.dropdown-content #router{
+    background-color: white;
+    color: rgb(7, 7, 7);
+    padding: 12px 16px;
+    font-weight: normal!important;
+    text-decoration: none;
+    display: block;
+    border: none;
+    text-align: left;
+    width: 100%;
+}
+
+.dropdown-content button:hover {
+    background-color: #f1f1f1;
+}
+.dropdown-content #router:hover {
+    background-color: #f1f1f1;
+}
+
+.dropdown:hover .dropdown-content {
+    display: block;
+}
+
+.dropdown:hover .dropbtn {
+    background-color: #f8f8f8;
 }
 
 </style>
