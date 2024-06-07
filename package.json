@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@handsontable/vue3": "^14.3.0",
+    "@infectoone/vue-ganttastic": "^2.3.2",
     "@isneezy/vue-selectize": "^0.6.1",
     "apexcharts": "^3.49.1",
     "axios": "^1.6.8",

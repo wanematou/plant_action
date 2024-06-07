@@ -5,7 +5,6 @@
     </div>
     <div  id="nav2">
     <router-link :to="{name:'objective', params:{id_projet: id_projet}}" class="text-decoration-none text-white">Définition du Plan d'Action</router-link>
-    <router-link :to="{name:'plus', params:{id_projet: id_projet}}" class="text-decoration-none text-white"><i class="bi bi-plus"></i></router-link>
     <router-link :to="{name:'editer', params:{id_projet: id_projet}}" class="text-decoration-none text-white editer">Editer</router-link>
     <router-link :to="{name:'essai', params:{id_projet: id_projet}}" class="text-decoration-none text-white editer">Telecharger</router-link>
     </div>
@@ -61,6 +60,6 @@
       font-weight: bold;
       }
       #nav2{
-        margin-left: 600px;
+        margin-left: 650px;
       }
 </style>

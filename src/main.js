@@ -16,7 +16,7 @@ import VueApexCharts from "vue3-apexcharts";
 import jsPDF from 'jspdf';
 import "selectize/dist/css/selectize.css";
 import "selectize/dist/js/selectize.js";
-
+import ganttastic from '@infectoone/vue-ganttastic'
 const pinia= createPinia();
 
 createApp(App)
@@ -24,5 +24,6 @@ createApp(App)
     .use(ElementPlus)
     .use(pinia)
     .use(VueApexCharts)
+    .use(ganttastic)
     .use(router)
     .mount('#app')

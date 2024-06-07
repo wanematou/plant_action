@@ -1294,8 +1294,8 @@ export default {
                 data.append('qui', this.value[taskId].map(item => item.name));
             }
             data.append('email', this.value[taskId].map(item => item.code));
-            data.append('project', this.taskss);
-            data.append('task', this.projetname);
+            data.append('project',this.projetname);
+            data.append('task', this.taskss);
             if(this.selectOu[taskId]==''){
                 data.append('ou', this.selectOuS[taskId]);
             }else if(this.selectOuS[taskId]=='undefined'){

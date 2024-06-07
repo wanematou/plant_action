@@ -43,12 +43,7 @@
                     </p>
                 </div>
                 <div class="mesure_suivi">
-                    <h5>V-Réseau d’acteur</h5>
-                    <div class=" pluslists">
-                        <p v-for="item in  pluslists">
-                            {{ item.sigle }}={{ item.signification }},
-                        </p>
-                    </div>
+                <h5>V-Réseau d’acteur</h5>
                 </div>
                 <div class="reseau_acteur">
                     <table>
@@ -91,35 +86,22 @@
                             <tr v-for="(task, taskId) in tasklist">
                                 <td>{{ task.tasklists }}</td>
                                 <td>
-                                    <select :class="{ 'select-disabled': selectActor[taskId] }" class="select2"
-                                        name="tableau_action" v-model="selectActor[task.id]" @change="fetchTA(task.id)">
-                                        <option v-for="(item, humanId) in  humanresources" :key="humanId">
-                                            {{ item.firstname }} {{ item.lastname }}
-                                        </option>
-                                    </select>
+                                    {{selectActor[task.id]}}
                                 </td>
                                 <td id="ou">
-                                    <textarea id="area" rows="2" class="textarea ou"
-                                        @change=" fetchTA(task.id); autoResize()"
-                                        v-model="selectOu[task.id]"></textarea>
+                                    {{selectOu[task.id]}}
                                 </td>
                                 <td id="quand">
-                                    Du <input type="date" class="inputdate" required v-model="selectquandD[task.id]"
-                                        @change=" fetchTA(task.id)"><br>
-                                    Au <input type="date" class="inputdate" required v-model="selectquandF[task.id]"
-                                        @change=" fetchTA(task.id)">
+                                    {{selectquandD[task.id]}} - <br>{{selectquandF[task.id]}}
                                 </td>
                                 <td>
-                                    <textarea id="area" rows="2" class="textarea comment" @change=" fetchTA(task.id)"
-                                        v-model="selectcomment[task.id]"></textarea>
+                                    {{selectcomment[task.id]}}
                                 </td>
                                 <td>
-                                    <textarea id="area" rows="2" class="textarea pourquoi" @change=" fetchTA(task.id)"
-                                        v-model="selectpourquoi[task.id]"></textarea>
+                                   {{selectpourquoi[task.id]}}
                                 </td>
                                 <td>
-                                    <textarea id="area" rows="2" class="textarea combien" @change=" fetchTA(task.id)"
-                                        v-model="selectcombien[task.id]"></textarea>
+                                   {{selectcombien[task.id]}}
                                 </td>
                             </tr>
                         </tbody>
@@ -146,20 +128,10 @@
                                     {{ task.tasklists }}
                                 </td>
                                 <td>
-                                    <select class="select2" id="" @change="fetchTP(task.id)"
-                                        v-model="selecturgent[task.id]">
-                                        <option v-for="option in options" :value="option.value">
-                                            {{ option.label }}
-                                        </option>
-                                    </select>
+                                    {{selecturgent[task.id]}}
                                 </td>
                                 <td>
-                                    <select class="select2" id="" @change="fetchTP(task.id)"
-                                        v-model="selectimportant[task.id]">
-                                        <option v-for="option in options2" :value="option.value">
-                                            {{ option.label }}
-                                        </option>
-                                    </select>
+                                    {{selectimportant[task.id]}}
                                 </td>
                                 <td>
                                     <p>{{ selectpriorite[task.id] }}</p>
@@ -168,8 +140,7 @@
                                     <p>{{ selectstatut[task.id] }}</p>
                                 </td>
                                 <td class="fr">
-                                    <input type="date" class="inputdate" @change="fetchTP(task.id)"
-                                        v-model="selectdelai[task.id]">
+                                    {{this.selectquandF[task.id]}}
                                 </td>
                             </tr>
                         </tbody>
@@ -435,30 +406,6 @@ export default {
             })
 
         },
-
-        fetchTA(taskId) {
-            var data = new FormData();
-            data.append('id_projet', this.id_projet);
-            data.append('id_t', taskId);
-            data.append('qui', this.selectActor[taskId]),
-                data.append('ou', this.selectOu[taskId]),
-                data.append('quandD', this.selectquandD[taskId]),
-                data.append('quandF', this.selectquandF[taskId]),
-                data.append('comment', this.selectcomment[taskId]),
-                data.append('pourquoi', this.selectpourquoi[taskId]),
-                data.append('combien', this.selectcombien[taskId]),
-                axios({
-                    method: 'POST',
-                    url: 'http://localhost/planaction/projectinfo.php?action=create_tableauaction',
-                    data: data
-                }).then((response) => {
-                    this.readTA();
-                    this.readApex();
-                }).catch((error) => {
-                    console.log(error)
-                })
-
-        },
         readTA() {
             var data = new FormData();
             data.append('id_p', this.id_projet);
@@ -500,33 +447,7 @@ export default {
                 console.log(error)
             })
 
-        },
-        autoResize(id, taskId) {
-            const textarea = document.getElementById('area')
-            textarea.style.height = 'auto';
-            textarea.style.height = (textarea.scrollHeight) + 'px';
-        },
-        fetchTP(taskId) {
-            var data = new FormData();
-            data.append('id_projet', this.id_projet);
-            data.append('task_id', taskId);
-            data.append('urgent', this.selecturgent[taskId]);
-            data.append('important', this.selectimportant[taskId]);
-            data.append('priorite', this.selectpriorite[taskId]);
-            // data.append('statut',this.selectstatut[taskId]);
-            data.append('delai', this.selectdelai[taskId]);
-            axios({
-                method: 'POST',
-                url: 'http://localhost/planaction/projectinfo.php?action=create_priorite',
-                data: data
-            }).then((response) => {
-                console.log(response.data);
-                this.readTP();
-            }).catch((error) => {
-                console.log(error)
-            })
-
-        },
+        },          
         readTP() {
             var data = new FormData();
             data.append('id_p', this.id_projet);
@@ -539,7 +460,6 @@ export default {
                     var taskId = item.task_id;
                     this.selecturgent[taskId] = item.urgent;
                     this.selectimportant[taskId] = item.important;
-                    this.selectdelai[taskId] = item.delai;
                     if (item.urgent == "urgent" & item.important == "important") {
                         this.selectpriorite[taskId] = 'X';
                     } else {

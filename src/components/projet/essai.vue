@@ -1,82 +1,83 @@
-<!-- ModalComponent.vue -->
 <template>
-    <div>
-      <!-- Bouton pour ouvrir le modal -->
-      <button type="button" class="btn btn-outline-success btn-sm mb-2" @click="showModal = true">
-        Ajouter une mesure de suivi
-      </button>
-  
-      <!-- Modal -->
-      <div v-if="showModal" class="modal fade show d-block" tabindex="-1" role="dialog">
-        <div class="modal-dialog" role="document">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h5 class="modal-title">Ajouter une mesure de suivi</h5>
-              <button type="button" class="close" @click="showModal = false" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-              </button>
-            </div>
-            <div class="modal-body">
-              <form @submit.prevent="submitForm">
-                <div class="form-group">
-                  <label for="measureName">Nom de la mesure</label>
-                  <input type="text" class="form-control" id="measureName" v-model="formData.measureName" required>
-                </div>
-                <div class="form-group">
-                  <label for="measureValue">Valeur de la mesure</label>
-                  <input type="text" class="form-control" id="measureValue" v-model="formData.measureValue" required>
-                </div>
-                <button type="submit" class="btn btn-primary" id="btn">Envoyer</button>
-              </form>
-            </div>
-          </div>
-        </div>
-      </div>
-      <!-- Backdrop -->
-      <div v-if="showModal" class="modal-backdrop fade show"></div>
-    </div>
-  </template>
-  
-  <script>
-  export default {
-    data() {
-      return {
-        showModal: false,
-        formData: {
-          measureName: '',
-          measureValue: ''
+  <g-gantt-chart
+    chart-start="2021-07-12 12:00"
+    chart-end="2023-12-14 12:00"
+    precision="month"
+    bar-start="myBeginDate"
+    bar-end="myEndDate"
+    push-on-overlap
+    color-scheme:vue
+    font:Courier
+  >
+    <g-gantt-row label="Colorier" :bars="row1BarList" />
+    <g-gantt-row label="Vendre" :bars="row2BarList" />
+    <g-gantt-row label="Vendre" :bars="row3BarList" />
+    <g-gantt-row
+      label="My row 1"
+      :bars="myBarList"
+    />
+  </g-gantt-chart>
+</template>
+
+<script>
+export default {
+  data() {
+    return {
+      row1BarList: [
+        {
+          myBeginDate: "2021-07-13 13:00",
+          myEndDate: "2021-12-13 19:00",
+          ganttBarConfig: {
+            id: "unique-id-1",
+            label: "Lorem ipsum dolor"
+          }
+        }
+      ],
+      row2BarList: [
+        {
+          myBeginDate: "2021-07-13 00:00",
+          myEndDate: "2021-10-14 02:00",
+          ganttBarConfig: {
+            id: "another-unique-id-2",
+            hasHandles: true,
+            label: "Hey, look at me",
+            style: {
+              background: "#e09b69",
+              borderRadius: "20px",
+              color: "black"
+            }
+          }
+        }
+      ],
+      row3BarList: [
+        {
+          myBeginDate: "2021-07-13 00:00",
+          myEndDate: "2022-10-14 02:00",
+          ganttBarConfig: {
+            id: "another-unique-id-3",
+            hasHandles: true,
+            label: "Hey, look at me",
+            style: {
+              borderRadius: "20px",
+              color: "black"
+            }
+          }
+        }
+      ],
+      myBarList: []
+    };
+  },
+  methods: {
+    addNewBar() {
+      const bar = {
+        myBeginDate: "2021-07-11 17:00",
+        myEndDate: "2021-07-12 03:00",
+        ganttBarConfig: {
+          id: "some-id-blabla" // make sure this is unique!
         }
       };
-    },
-    methods: {
-      submitForm() {
-        // Logique pour gérer l'envoi du formulaire
-        console.log('Form submitted:', this.formData);
-        // Fermer le modal après l'envoi
-        this.showModal = false;
-        // Réinitialiser les données du formulaire
-        this.formData.measureName = '';
-        this.formData.measureValue = '';
-      }
+      this.myBarList.push(bar);
     }
-  };
-  </script>
-  
-  <style scoped>
-  .modal-backdrop {
-    z-index: 1040;
-  }
-  .modal {
-    z-index: 1050;
-  }
-  .close{
-    margin-left:180px ;
-    margin-top:10px;
-    border: none;
-  }
-  #btn{
-    margin-top: 15px;
-    margin-left:380px ;
-  }
-  </style>
-  
+}
+}
+</script>
