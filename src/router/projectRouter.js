@@ -3,6 +3,7 @@ import Objective from '../components/projet/Objective.vue'
 import Plus from '../components/projet/Plus.vue'
 import Editer from '../components/projet/editer.vue'
 import Essai from '../components/projet/essai.vue'
+import Gant from '../components/gant.vue'
 import Dashboard from '../components/projet/dashboard.vue'
 import ProjectRouter from '../router/projectRouter.vue'
 const routes =  [
@@ -33,6 +34,11 @@ const routes =  [
                 name: 'essai',
                 component:Essai,
                 props:true
+              },
+              { path:'gant',
+              name: 'gant',
+              component:Gant,
+              props:true
               },
             ]
           
