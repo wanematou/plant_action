@@ -322,11 +322,10 @@
                 </div>
                 </p>
                 <ModalComponent :onSubmit="fetchPlusList"
-                                :id_projet="id_projet" 
-                                />
+                                :id_projet="id_projet" />
             </div><br>
             <div class="tablecontainer">
-                <table>
+                <table class="ms">
                     <thead>
                         <tr>
                             <th>Actions</th>
@@ -355,7 +354,7 @@
                 <b>Q.Q.O.Q.C.P.C(Qui, Quoi, Où, Quand, Comment, Pourquoi, Combien).</b>
             </div><br>
             <div class="tablecontainer">
-                <table>
+                <table class=" tableta">
                     <thead>
                         <tr>
                             <th>Quoi</th>
@@ -374,7 +373,7 @@
                             <td>{{ task.tasklists }}</td>
                             <td >
                                 <span v-if="selectActor[task.id]" class="sbutton">{{ selectActor[task.id] }}</span>
-                                <div  v-if="!selectActor[task.id]||modify[task.id]">
+                                <div  v-if="!select[task.id]||modify[task.id]">
                                     <multiselect v-model="value[task.id]" tag-placeholder="" @select="readTaskListt(task.id)"
                                     placeholder="Ajouter un acteur"  label="name"
                                     track-by="code" :options="options" :multiple="true">
@@ -383,7 +382,7 @@
                             </td>
                             <td id="ou">
                                <span v-if="selectOuS[task.id]" type="button" class="sbutton">{{selectOuS[task.id]}}</span>
-                                <input v-if="!selectOuS[task.id]||modify[task.id]" id="input" class="input" v-model="selectOu[task.id]"></input>                              
+                                <input v-if="!select[task.id]||modify[task.id]" id="input" class="input" v-model="selectOu[task.id]"></input>                              
                             </td>
                             <td id="quand">
                                 Du <input type="date" class="inputdate" required v-model="selectquandD[task.id]"
@@ -393,27 +392,27 @@
                             </td>
                             <td>
                                 <span @click="" v-if="selectcommentt[task.id]" class="sbutton">{{selectcommentt[task.id]}}</span>
-                                <input  v-if="!selectcommentt[task.id]||modify[task.id]" id="input"  class="input" v-model="selectcomment[task.id]"></input>
+                                <input  v-if="!select[task.id]||modify[task.id]" id="input"  class="input" v-model="selectcomment[task.id]"></input>
                                 
                             </td>
                             <td>
                                 <span v-if="selectpourquoii[task.id]" class="sbutton">{{selectpourquoii[task.id]}}</span>
-                                <input v-if="!selectpourquoii[task.id]||modify[task.id]" id="input" class="input" v-model="selectpourquoi[task.id]"></input>
+                                <input v-if="!select[task.id]||modify[task.id]" id="input" class="input" v-model="selectpourquoi[task.id]"></input>
                                 
                             </td>
                             <td>
                                 <span v-if="selectcombienn[task.id]" class="sbutton">{{selectcombienn[task.id]}}</span>
-                                <input v-if="!selectcombienn[task.id]||modify[task.id]" id="input" class="input" @change="" v-model="selectcombien[task.id]"></input>
+                                <input v-if="!select[task.id]||modify[task.id]" id="input" class="input" @change="" v-model="selectcombien[task.id]"></input>
                             </td>
                             <td>
                                 <div class="btnbtn">
-                                    <button v-if="!enregistrer[task.id]" @click="fetchTA(task.id)" type="button" class="btn btn-outline-success btn-sm mb-2">Enregistrer</button>
-                                    <button v-if="enregistrer[task.id]" @click=" updateTA(task.id)" type="button" class="btn btn-outline-success btn-sm mb-2">Enregistrer la modification</button>
-                                    <button @click="modifyTa(task.id)" type="button" class="btn btn-outline-primary btn-sm mb-2">Modifier</button>
+                                    <button v-if="!select[task.id]" @click="fetchTA(task.id)" type="button" class="btn btn-outline-primary btn-sm mb-2">Enregistrer</button>
+                                    <button v-if="enregistrer[task.id]" @click=" updateTA(task.id)" type="button" class="btn btn-outline-primary btn-sm mb-2">Enregistrer modif</button>
+                                    <button v-if="selectE[task.id]||modif[task.id]" @click="modifyTa(task.id)" type="button" class="btn btn-outline-primary btn-sm mb-2">Modifier</button>
                                 </div>
                             </td>
                             <td >
-                                <div class="btnbtnn">
+                                <div class="btnbtn">
                                     <button @click="sendMail(task.id)" type="button" class="btn btn-outline-info btn-sm mb-2">Notifier</button>
                                 </div>
                             </td>
@@ -471,14 +470,30 @@
 
 
         </div>
+        <br><br>
+        <h5>VII-Planning ou  chronogramme des tâches</h5>
+        <div class="container">
+            <GantComponent  :bar-list="barList"
+                            :project-id="id_projet"/> <br>
+            <ModalGant :tasklist="taskG" 
+                       :project-id="id_projet"
+                       :name="projetname"
+                       :options="options"
+                       @trigger-readTA="readTA"
+                       :selectquandDD="selectquandDD"
+                       :selectActor="selectActor"/>
+        </div>
     </main>
 </template>
 <script>
 import axios from 'axios';
 import Multiselect from 'vue-multiselect';
 import ModalComponent from '@/components/modalComponent.vue'
+import GantComponent from '@/components/gant.vue'
+import ModalGant from '@/components/modalGannt.vue'
+import TableauAction from '@/components/tableauAction.vue'
 export default {
-    components: { Multiselect, ModalComponent },
+    components: { Multiselect, ModalComponent, GantComponent, ModalGant,},
     props: ['id_projet'],
     data() {
         return {
@@ -518,6 +533,7 @@ export default {
             tableDataD: [],
             task: "",
             tasks: "",
+            taskG :[],
             id: "",
             humanresources: "",
             modification: false,
@@ -571,7 +587,11 @@ export default {
             idp:'',
             pluslistsss:'',
             taskss:"",
-            projetname:""
+            projetname:"",
+            barList: [], 
+            select:{},
+            modif:{},
+            selectE:{},
         }       
     },
     computed: {
@@ -629,6 +649,7 @@ export default {
         this.readPlussList();
         this.isMounted = true;
         this. readPlusssList();
+        this.addBar();
     },
     methods: {    
         sendProjectNameForm() {
@@ -664,7 +685,7 @@ export default {
                 .then((response) => {
                     this.projectnames = response.data;
                     response.data.forEach(item=>{
-                        this.projetname= item.projectname;
+                        this.projetname= item.projectname;                    
                     })
                 }).catch((error) => {
                     console.log(error)
@@ -1059,6 +1080,8 @@ export default {
                 .then((response) => {
                     this.tableDataT = response.data;
                     this.tasks = response.data;
+                    this.taskG = response.data;
+                    console.log(this.taskG)
                 }).catch((error) => {
                     console.log(error)
                 })
@@ -1098,6 +1121,7 @@ export default {
             })
                 .then((response) => {
                     this.readTaskList();
+                    this.addBar();
                 }).catch((error) => {
                     console.log(error)
                 })
@@ -1136,7 +1160,8 @@ export default {
                     response.data.forEach(item => {
                         var name = item.firstname + ' ' + item.lastname;
                         var email = item.email;
-                        this.options.push({ name: name, code: email });       
+                        this.options.push({ name: name, code: email }); 
+                             
                     })
                 }).catch((error) => {
                     console.log(error)
@@ -1285,57 +1310,24 @@ export default {
             var data = new FormData();
             data.append('id_projet', this.id_projet);
             data.append('id_t', taskId);
-            console.log(this.value[taskId]);
            if(this.value.length==0){
-                data.append('qui', this.selectActor[taskId]);
-            }else if(this.selectActor[taskId]==='undefined'){
                 data.append('qui', '');
             } else{
                 data.append('qui', this.value[taskId].map(item => item.name));
             }
-            data.append('email', this.value[taskId].map(item => item.code));
+
+            if(this.value.length==0){
+                data.append('email', '');;
+            } else{
+                data.append('email', this.value[taskId].map(item => item.code));
+            }
             data.append('project',this.projetname);
             data.append('task', this.taskss);
-            if(this.selectOu[taskId]==''){
-                data.append('ou', this.selectOuS[taskId]);
-            }else if(this.selectOuS[taskId]=='undefined'){
-                data.append('ou', '');
-            } else{
-                data.append('ou', this.selectOu[taskId]);
-            }
-
-            if(this.selectquandD[taskId]==''){
-                data.append('quandD', this.selectquandDD[taskId]);
-            }else if(this.selectquandDD[taskId]=='undefined'){
-                data.append('quandD', '');
-            } else{
-                data.append('quandD', this.selectquandD[taskId]);
-            }
-            
-            if(this.selectquandF[taskId]==''){
-                data.append('quandF', this.selectquandFF[taskId]);
-            }else if(this.selectquandFF[taskId]=='undefined'){
-                data.append('quandF', '');
-            } else{
-                data.append('quandF', this.selectquandF[taskId]);
-            }
-                
-            if(this.selectcomment[taskId]==''){
-                data.append('comment',  this.selectcommentt[taskId]);
-            }else if( this.selectcommentt[taskId]=='undefined'){
-                data.append('comment', '');
-            } else{
-                data.append('comment', this.selectcomment[taskId]);
-            }    
-            
-            if(this.selectpourquoi[taskId]==''){
-                data.append('comment', this.selectpourquoii[taskId]);
-            }else if( this.selectpourquoii[taskId]=='undefined'){
-                data.append('comment', '');
-            } else{
-                data.append('pourquoi', this.selectpourquoi[taskId]);
-            }    
-                    
+            data.append('ou', this.selectOu[taskId]);
+            data.append('quandD', this.selectquandD[taskId]);
+            data.append('quandF', this.selectquandF[taskId]);
+            data.append('comment', this.selectcomment[taskId]);
+            data.append('pourquoi', this.selectpourquoi[taskId]);               
             data.append('combien', this.selectcombien[taskId]);
                
             await axios({
@@ -1344,6 +1336,9 @@ export default {
                 data: data
             }).then((response) => {
                 this. readTA();
+                this.addBar();
+                this.modif[taskId]=true;
+                console.log(this.modif[taskId]);
             }).catch((error) => {
                 console.log(error)
             })
@@ -1365,33 +1360,49 @@ export default {
                         this.selectActor[taskId] = '';
                     } else {
                         this.selectActor[taskId] = item.qui;
+                        this.select[taskId]=item.qui;
+                        this.selectE[taskId]=item.qui;
                     };
                     if (item.ou == 'null' || item.ou == 'undefined') {
                         this.selectOu[taskId] = '';
                     } else {
                         this.selectOuS[taskId] = item.ou;
+                        this.select[taskId]=item.ou;
+                        this.selectE[taskId]=item.ou;
                     };
                     this.selectquandD[taskId] = item.quandD;
                     this.selectquandDD[taskId] = item.quandD;
+                    this.select[taskId]=item.quandD;
+                    this.selectE[taskId]=item.quandD;
+
                     this.selectquandF[taskId] = item.quandF;
                     this.selectquandFF[taskId] = item.quandF;
+                    this.select[taskId]=item.quandF;
+                    this.selectE[taskId]=item.quandF; 
+
                     if (item.comment == 'null' || item.comment == 'undefined') {
                         this.selectcomment[taskId] = '';
                     } else {
                         this.selectcomment[taskId] = item.comment;
                         this.selectcommentt[taskId]= item.comment;
+                        this.select[taskId]=item.comment;
+                        this.selectE[taskId]=item.comment;
                     };
                     if (item.pourquoi == 'null' || item.pourquoi == 'undefined') {
                         this.selectpourquoi[taskId] = '';
                     } else {
                         this.selectpourquoi[taskId] = item.pourquoi;
                         this.selectpourquoii[taskId]= item.pourquoi;
+                        this.select[taskId]=item.pourquoi;
+                        this.selectE[taskId]=item.pourquoi;
                     };
                     if (item.combien == 'null' || item.combien == 'undefined') {
                         this.selectcombien[taskId] = '';
                     } else {
                         this.selectcombien[taskId] = item.combien;
                         this.selectcombienn[taskId] = item.combien;
+                        this.select[taskId]=item.combien;
+                        this.selectE[taskId]=item.combien;
                     };
                 })
                
@@ -1401,22 +1412,43 @@ export default {
 
         },
         modifyTa(taskId){
+            console.log(taskId);
             this.modify[taskId]=true;
-            var names=this.selectActor[taskId].split(',');
-            this.value[taskId]= names.map(name =>{
+            if(this.selectActor[taskId].length==0){
+                this.value[taskId]=''
+            }else{
+                var names=this.selectActor[taskId].split(',');
+                this.value[taskId]= names.map(name =>{
                 return this.options.find(option=>option.name === name.trim())
             })
+            };
             this.selectOu[taskId] =this.selectOuS[taskId];
             this.selectcomment[taskId] =this.selectcommentt[taskId];
             this.selectpourquoi[taskId] =this.selectpourquoii[taskId];
             this.selectcombien[taskId]=this.selectcombienn[taskId];
             this.enregistrer[taskId]=true;
+            this.selectActor[taskId]=false;
+            this.selectOuS[taskId]=false;
+            this.selectcombienn[taskId]=false;
+            this.selectpourquoii[taskId]=false;
+            this.selectcommentt[taskId]=false;
+            this.modif[taskId]=false;
+            this.selectE[taskId]=false;
+           
         },
         updateTA(taskId){
             var data = new FormData();
-            data.append('id', this.idp);
-            data.append('qui', this.value[taskId].map(item => item.name));
-            data.append('email', this.value[taskId].map(item => item.code));
+            data.append('id', taskId);
+            if(this.value[taskId].length==0){
+                data.append('qui', '');               
+            }else{
+                data.append('qui', this.value[taskId].map(item => item.name));               
+            }  
+            if(this.value[taskId].length==0){
+                data.append('email','');
+            }  else{
+                data.append('email', this.value[taskId].map(item => item.code));
+            }       
             data.append('ou', this.selectOu[taskId]);
             data.append('quandD', this.selectquandD[taskId]);
             data.append('quandF', this.selectquandF[taskId]);
@@ -1432,6 +1464,7 @@ export default {
                 this. readTA();
                 this.modify[taskId]=false;
                 this.enregistrer[taskId]=false;
+                this.modif[taskId]=true;
             }).catch((error) => {
                 console.log(error)
             })
@@ -1532,7 +1565,68 @@ export default {
                     console.log(error)
                 })
  
+            },
+            addNewBar() {
+        const bar = {
+          myBeginDate: "2021-07-11 17:00",
+          myEndDate: "2022-07-12 03:00", 
+          ganttBarConfig: {
+            id: "some-id-blabla" ,
+          }
+        };
+         console.log(this.myBarList);
+        this.myBarList.push(bar);
+        console.log(this.myBarList);
+      },
+      onDragBar(bar, e, datetime) {
+        console.log('DragBar on bar:', bar, e, datetime);
+      },
+    
+    async addBar() {
+      var data = new FormData();
+      data.append('id_p', this.id_projet);
+      try {
+        const response = await axios.post('http://localhost/planaction/projectinfo.php?action=read_apexresource', data);
+        const transformedData = {};
+        response.data.forEach(item => {
+          var id = item.id_task;
+          var name = item.qui;
+          var task = item.tasklists;
+          var dateD = item.quandD + ' 07:00';
+          var dateF = item.quandF + ' 05:00';
+          if (!transformedData[task]) {
+            transformedData[task] = [];
+          }
+          transformedData[task].push({
+            id: id,
+            task: task,
+            dateD: dateD,
+            dateF: dateF
+          });
+        });
+        this.barList = Object.keys(transformedData).map(task => ({
+          label: task,
+          bars: transformedData[task].map(task => ({
+            myBeginDate: task.dateD,
+            myEndDate: task.dateF,
+            ganttBarConfig: {
+              id: task.id,
+              hasHandles: true,
+              label: task.task,
+              style: {
+                background: "#e09b69",
+                borderRadius: "20px",
+                color: "black"
+              }
             }
+          }))
+        }));
+        console.log(this.barList);
+
+      } catch (error) {
+        console.log(error);
+      }
+    }
 
     }
 }
@@ -1605,6 +1699,14 @@ td,tr {
     margin-left: 20px;
     overflow-x: auto;
 }
+.tableta{
+    table-layout: auto;
+    width: 1085px;
+}
+.ms{
+    table-layout: fixed;
+    width: 100%;
+}
 .table3{
     width: 1085px;
     margin-left: 70px;
@@ -1646,13 +1748,22 @@ thead tr th:first-child {
 .input {
     margin: 5px;
     outline: none;
-    border: 1px solid #e7e6e6;
+    border: 1px solid #d6d0d0;
+    border-radius: 5%;
+    height: 40px;
+    width: 95px!important;
+    overflow-y: scroll!important;
+    text-wrap: balance;
+}
+.input:hover {
+    margin: 5px;
+    outline: none;
+    border: 1px solid rgb(154, 194, 204);
     border-radius: 5%;
     height: 40px;
     overflow-y: scroll!important;
     text-wrap: balance;
 }
-
 .inputdate {
     border: none;
     outline: none;
@@ -1672,9 +1783,7 @@ thead tr th:first-child {
     border: none;
 }
 .btnbtn{
-    display: flex;
-    gap:2px;
-    margin-top: 35px;
+    padding:15px;
     border: none!important;
 }
 .btnbtnn{
