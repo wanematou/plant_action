@@ -3,7 +3,7 @@
     <div>
       <!-- Bouton pour ouvrir le modal -->
       <button type="button" class="btn btn-outline-success btn-sm mb-2" @click="showModal = true">
-        Ajouter une mesure de suivi
+       +
       </button>
   
       <!-- Modal -->

@@ -1,4 +1,40 @@
 <template>
+    <div>
+      <!-- Bouton pour ouvrir le modal -->
+      <button type="button" class="btn btn-outline-info btn-sm mb-2" @click="showModal = true">
+       +
+      </button> 
+      
+      <!-- Modal -->
+      <div v-if="showModal" class="modal fade show d-block" tabindex="-1" role="dialog">
+        <div class="modal-dialog modaldialog" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title">Notification</h5>
+              <button type="button" class="close" @click="showModal = false" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">                
+                Message envogé
+           </div>
+          </div>
+        </div>
+      </div>
+      <div v-if="showModal" class="modal-backdrop fade show"></div>
+    </div>
+
+
+
+
+
+
+
+
+
+
+
+
   <g-gantt-chart
     chart-start="2021-07-12 12:00"
     chart-end="2023-12-14 12:00"
@@ -32,6 +68,7 @@ export default {
   props: ['id_projet'],
   data() {
     return {
+      showModal: false,
       row1BarList: [
         {
           myBeginDate: "2022-07-13 13:00",

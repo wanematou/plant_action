@@ -1,6 +1,7 @@
 <template>
     <div >
-      <g-gantt-chart class="gant"
+      <g-gantt-chart 
+      immobile:true
       :chart-start="chartStart"
       :chart-end="chartEnd"
       precision="month"
@@ -8,12 +9,10 @@
       bar-end="myEndDate"
       color-scheme:vue
       font:Courier
-      @drag-bar="onDragBar($event.bar, $event.e)"
       >
-      <g-gantt-row class="gant"
+      <g-gantt-row 
           v-for="(barGroup, index) in barList" 
           :key="index" 
-          :label="barGroup.label" 
           :bars="barGroup.bars" 
         />
       </g-gantt-chart>
@@ -22,13 +21,11 @@
 </template>
   
   <script>
-  import axios from 'axios';
   export default {
     props: {
     barList: Array,
     projectId: String
   },
-  emits: ['triggerReadTA', 'triggerAddBar'],
   computed: {
     chartStart() {
       const allBars = [...this.barList.flatMap(barGroup => barGroup.bars), ...this.myBarList];
@@ -48,34 +45,10 @@
     data() {
       return {     
         myBarList: [],
-        quandF:'',
-        quandD:'',
-        taskId:'',
       };
     },
     methods:{
-      onDragBar(bar, e, datetime) {
-        this.taskID= bar.ganttBarConfig.id;
-        this.quanD= bar.myBeginDate;
-        this.quandF= bar.myEndDate;
-        this.updatebar=true;  
-        var data = new FormData();
-            data.append('id', bar.ganttBarConfig.id); 
-            data.append('quandD', bar.myBeginDate.substring(0, 10));
-            data.append('quandF', bar.myEndDate.substring(0, 10));
-        axios({
-                method: 'POST',
-                url: 'http://localhost/planaction/projectinfo.php?action=update_tableauactionmm',
-                data: data
-            }).then((response) => {
-              this.showModal = true;
-         this.$emit('triggerReadTA');
-              this.$emit('triggerAddBar');
-              this.updatebar=false;
-            }).catch((error) => {
-                console.log(error)
-            })
-      }
+    
     }
     
   }

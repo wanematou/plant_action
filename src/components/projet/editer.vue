@@ -1,25 +1,31 @@
 <template>
     <div class="container">
-        <div class="card" id="card">
-            <div class="card-body">
+        <div class="card">
+            <div class="card-body" id="card">
                 <div class="nom_projet">
                     <h1 v-for="item in projectnames">
                         {{ item.projectname }}
                     </h1>
                     <button @click="downloadPDF()">Telecharger</button>
                 </div><br><br>
+
                 <div class="objectif_principale">
                     <h5>I-Objectif principal</h5>
                     <p v-for="item in mainobjectives">
                         {{ item.objectives }}
                     </p>
                 </div><br>
+
                 <div class="objectif_intermediaires">
-                    <h5>II-Les objectifs intermédiaires ou jalons ou d’étapes</h5>
-                    <p v-for="item in specificobjectives">
-                        {{ item.objectives }}
-                    </p>
-                </div><br>
+                    <h5>II-Les objectifs intermédiaires ou jalons ou d'étapes</h5>
+                    <div class="mb-2" v-for="item in specificobjectives">
+                        <span>
+                            {{ item.objectives }}
+                        </span>
+                    </div>
+                </div>
+                <br>
+
                 <div class="equilibre_QCD">
                     <h5>III-Equilibre QCD</h5>
                     <h6>Qualité</h6>
@@ -42,27 +48,29 @@
                         {{ item.tasklists }}
                     </p>
                 </div>
-                <div class="mesure_suivi">
+                <div class="mesure_suivi"></div>
                 <h5>V-Réseau d’acteur</h5>
-                </div>
-                <div class="reseau_acteur">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Actions</th>
-                                <th v-for="( actor, actorIndex) in  humanresources" :key="actorIndex">{{ actor.firstname
-                                    }} {{ actor.lastname }}</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr v-for="(task, taskIndex) in tasklist" :key="taskIndex">
-                                <td>{{ task.tasklists }}</td>
-                                <td v-for="(actor, actorIndex) in humanresources" :key="actorIndex">
-                                    {{ selectedTasks[actor.id + '-' + task.id] }}
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
+                <div class="reseau_acteur" v-if="humanresources.length > 0">
+                    <div v-for="(actorGroup, groupIndex) in actorGroups" :key="groupIndex">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Actions</th>
+                                    <th v-for="(actor, actorIndex) in actorGroup" :key="actorIndex">{{ actor.firstname
+                                        }} {{ actor.lastname }}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="(task, taskIndex) in tasklist" :key="taskIndex">
+                                    <td>{{ task.tasklists }}</td>
+                                    <td v-for="(actor, actorIndex) in actorGroup" :key="actorIndex">
+                                        {{ selectedTasks[actor.id + '-' + task.id] }}
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <br>
+                    </div>
                 </div><br>
                 <h5>VI-Tableau d’action</h5>
                 <div class="qqocq">
@@ -86,22 +94,22 @@
                             <tr v-for="(task, taskId) in tasklist">
                                 <td>{{ task.tasklists }}</td>
                                 <td>
-                                    {{selectActor[task.id]}}
+                                    {{ selectActor[task.id] }}
                                 </td>
                                 <td id="ou">
-                                    {{selectOu[task.id]}}
+                                    {{ selectOu[task.id] }}
                                 </td>
                                 <td id="quand">
-                                    {{selectquandD[task.id]}} - <br>{{selectquandF[task.id]}}
+                                    {{ selectquandD[task.id] }} - <br>{{ selectquandF[task.id] }}
                                 </td>
                                 <td>
-                                    {{selectcomment[task.id]}}
+                                    {{ selectcomment[task.id] }}
                                 </td>
                                 <td>
-                                   {{selectpourquoi[task.id]}}
+                                    {{ selectpourquoi[task.id] }}
                                 </td>
                                 <td>
-                                   {{selectcombien[task.id]}}
+                                    {{ selectcombien[task.id] }}
                                 </td>
                             </tr>
                         </tbody>
@@ -128,10 +136,10 @@
                                     {{ task.tasklists }}
                                 </td>
                                 <td>
-                                    {{selecturgent[task.id]}}
+                                    {{ selecturgent[task.id] }}
                                 </td>
                                 <td>
-                                    {{selectimportant[task.id]}}
+                                    {{ selectimportant[task.id] }}
                                 </td>
                                 <td>
                                     <p>{{ selectpriorite[task.id] }}</p>
@@ -140,7 +148,7 @@
                                     <p>{{ selectstatut[task.id] }}</p>
                                 </td>
                                 <td class="fr">
-                                    {{this.selectquandF[task.id]}}
+                                    {{ this.selectquandF[task.id] }}
                                 </td>
                             </tr>
                         </tbody>
@@ -149,12 +157,11 @@
                 <h5>VII-Planning ou le chronogramme des tâches</h5><br>
                 <div>
                     <div id="chart">
-                        <apexchart type="rangeBar" height="350" :options="chartOptions" :series="series"></apexchart>
+                        <Gantdownload :bar-list="barList"
+                            :project-id="id_projet"/>
                     </div>
                 </div>
             </div>
-
-
         </div>
     </div>
 </template>
@@ -162,8 +169,11 @@
 <script>
 import axios from 'axios';
 import { jsPDF } from "jspdf";
+import Gantdownload from '@/components/gantdowload.vue';
+import html2canvas from "html2canvas";
 export default {
     props: ['id_projet'],
+    components: { Gantdownload },
     data() {
         return {
             projectnames: '',
@@ -193,43 +203,7 @@ export default {
             selectdelai: {},
             selectpriorite: {},
             selectstatut: {},
-            series: [],
-            chartOptions: {
-                chart: {
-                    height: 450,
-                    type: 'rangeBar'
-                },
-                plotOptions: {
-                    bar: {
-                        horizontal: true,
-                        barHeight: '80%'
-                    }
-                },
-                xaxis: {
-                    type: 'datetime'
-                },
-                stroke: {
-                    width: 1
-                },
-                fill: {
-                    type: 'solid',
-                    opacity: 0.6
-                },
-                legend: {
-                    position: 'top',
-                    horizontalAlign: 'left'
-                }
-            },
-            options: [
-                { label: 'urgent', value: 'urgent' },
-                { label: 'Pas urgent', value: 'pas_urgent ' },
-            ],
-            options2: [
-                { label: 'important', value: 'important' },
-                { label: 'Pas important', value: 'pas_important ' },
-            ],
-            cardTitle: 'Titre de la carte',
-            cardContent: ''
+            barList: [],
         }
     },
     mounted() {
@@ -246,10 +220,24 @@ export default {
         this.readRAChoice();
         this.readTA();
         this.readTP();
-        this.readApex();
+        this.addBar();
 
     },
+    computed: {
+        actorGroups() {
+            const groups = [];
+            for (let i = 0; i < this.humanresources.length; i += 10) {
+                groups.push(this.humanresources.slice(i, i + 10));
+            }
+            return groups;
+        }
+    },
     methods: {
+        transformDate(dateStr) {
+            if (!dateStr) return '';
+            let [year, month, day] = dateStr.split('-');
+            return `${day}-${month}-${year}`;
+        },
         readProjectName() {
             var data = new FormData();
             data.append('id_projet', this.id_projet);
@@ -422,8 +410,9 @@ export default {
                     } else {
                         this.selectOu[taskId] = item.ou;
                     };
-                    this.selectquandD[taskId] = item.quandD;
-                    this.selectquandF[taskId] = item.quandF;
+                    this.selectquandD[taskId] = this.transformDate(item.quandD);
+                    this.selectquandF[taskId] = this.transformDate(item.quandF);
+                    console.log(this.selectquandF[taskId]);
                     if (item.comment == 'null' || item.comment == 'undefined') {
                         this.selectcomment[taskId] = '';
                     } else {
@@ -447,7 +436,7 @@ export default {
                 console.log(error)
             })
 
-        },          
+        },
         readTP() {
             var data = new FormData();
             data.append('id_p', this.id_projet);
@@ -478,61 +467,84 @@ export default {
             })
 
         },
-        async readApex() {
-            var data = new FormData();
-            data.append('id_p', this.id_projet);
-            await axios({
-                method: 'POST',
-                url: 'http://localhost/planaction/projectinfo.php?action=read_apexresource',
-                data: data
-            }).then((response) => {
-                console.log(response.data);
-                const transformedData = {};
-                response.data.forEach(item => {
-                    var name = item.qui;
-                    var task = item.tasklists;
-                    var dateD = new Date(item.quandD).getTime();
-                    var dateF = new Date(item.quandF).getTime();
-                    transformedData[task] = {
-                        name: name,
-                        dateD: dateD,
-                        dateF: dateF
-                    };
-                });
-                this.series = Object.keys(transformedData).map(task => ({
-                    name: transformedData[task].name,
-                    data: [{
-                        x: task,
-                        y: [transformedData[task].dateD, transformedData[task].dateF]
-                    }]
-                }));
-                console.log(this.series);
-
-
-            }).catch((error) => {
-                console.log(error)
-            })
+        async addBar() {
+        var data = new FormData();
+        data.append('id_p', this.id_projet);
+        try {
+            const response = await axios.post('http://localhost/planaction/projectinfo.php?action=read_apexresource', data);
+            const transformedData = {};
+            response.data.forEach(item => {
+            var id = item.id_task;
+            var name = item.qui;
+            var task = item.tasklists;
+            var dateD = item.quandD + ' 07:00';
+            var dateF = item.quandF + ' 05:00';
+            if (!transformedData[task]) {
+                transformedData[task] = [];
+            }
+            transformedData[task].push({
+                id: id,
+                task: task,
+                dateD: dateD,
+                dateF: dateF
+            });
+            });
+            this.barList = Object.keys(transformedData).map(task => ({
+            label: task,
+            bars: transformedData[task].map(task => ({
+                myBeginDate: task.dateD,
+                myEndDate: task.dateF,
+                ganttBarConfig: {
+                id: task.id,
+                hasHandles: false,
+                immobile:true,
+                label: task.task,
+                style: {
+                    background: "#e09b69",
+                    borderRadius: "20px",
+                    color: "black"
+                }
+                }
+            }))
+            }));
+            console.log( this.barList);
+        } catch (error) {
+            console.log(error);
+        }
         },
         downloadPDF() {
-            const doc = new jsPDF();
-            this.cardContent = document.getElementById('card')
-            const cardContent = this.cardContent;
-            doc.html(cardContent, {
-                callback: function (doc) {
-                    // Téléchargez le PDF une fois que le contenu a été ajouté
-                    doc.save('carte.pdf');
+            const cardContent = document.getElementById('card');
+            html2canvas(cardContent).then(canvas => {
+                const doc = new jsPDF({
+                    orientation: 'p',
+                    unit: 'px',
+                    format: 'a4',
+                    floatPrecision: 16,
+                    hotfixes: ["px_scaling"],
+                });
+                let x = 0, y = 0, w = cardContent.clientWidth, h = cardContent.clientHeight;
+                while (y <= h) {
+                    if (y > 0) {
+                        doc.addPage('a4', 'p');
+                    }
+                    doc.addImage(canvas, 'PNG', 0, -y);
+                    y += 1024;
                 }
+                doc.save('carte.pdf');
+            }).catch((error) => {
+                console.error('Erreur lors de la capture de la carte avec html2canvas:', error);
             });
         }
     }
 }
 </script>
 <style scoped>
-.card {
-    width: 1110px !important;
-    margin-left: 60px;
+#card {
+    width: 800px;
 }
-
+.card{
+    margin-left: 180px;
+}
 .card-body h1 {
     text-align: center;
 }
@@ -565,15 +577,15 @@ tbody td {
 }
 
 table {
-    width: 990px !important;
+    width: 680px !important;
 }
 
 .table {
-    width: 990px !important;
+    width: 680px !important;
 }
 
 .table3 {
-    width: 990px !important;
+    width: 680px !important;
 }
 
 .textarea {
@@ -602,8 +614,9 @@ table {
 .tableau_priorité {
     margin-left: 50px !important;
 }
-.tableau_priorité{
-    width: 800px!important;
+
+.tableau_priorité {
+    width: 800px !important;
 }
 
 .select-disabled {
@@ -624,5 +637,23 @@ table {
 .inputdate {
     border: none;
     outline: none;
+}
+
+
+
+#card h1 {
+    font-size: 30px !important;
+}
+
+#card h5 {
+    font-size: 19px !important;
+}
+
+#card h6 {
+    font-size: 16px !important;
+}
+
+#card * {
+    font-size: 13px !important;
 }
 </style>

@@ -4,6 +4,7 @@ import Plus from '../components/projet/Plus.vue'
 import Editer from '../components/projet/editer.vue'
 import Essai from '../components/projet/essai.vue'
 import Gant from '../components/gant.vue'
+import Apexcomponent from '../components/apexChartComponent.vue'
 import Dashboard from '../components/projet/dashboard.vue'
 import ProjectRouter from '../router/projectRouter.vue'
 const routes =  [
@@ -38,6 +39,11 @@ const routes =  [
               { path:'gant',
               name: 'gant',
               component:Gant,
+              props:true
+              },
+              { path:'apexcomponent',
+              name: 'apex',
+              component:Apexcomponent,
               props:true
               },
             ]

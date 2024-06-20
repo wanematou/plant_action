@@ -322,7 +322,8 @@
                 </div>
                 </p>
                 <ModalComponent :onSubmit="fetchPlusList"
-                                :id_projet="id_projet" />
+                                :id_projet="id_projet"
+                                 />
             </div><br>
             <div class="tablecontainer">
                 <table class="ms">
@@ -349,6 +350,21 @@
                 </table>
             </div><br><br>
             <h5>Tableau d’action</h5>
+            <div>
+            <div v-if="showModal" class="modal fade show d-block" tabindex="-1" role="dialog">
+                <div class="modal-dialog modaldialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                    <h5 class="modal-title text-primary">Notification</h5>
+                    </div>
+                    <div class="modal-body">                
+                        Message envogé avec succès
+                </div>
+                </div>
+                </div>
+            </div>
+            <div v-if="showModal" class="modal-backdrop fade show"></div>
+            </div>
             <div class="qqocq">
                 <p>Roadmap du cycle ou feuille de route:</p>
                 <b>Q.Q.O.Q.C.P.C(Qui, Quoi, Où, Quand, Comment, Pourquoi, Combien).</b>
@@ -462,7 +478,7 @@
                             <p>{{ selectstatut[task.id] }}</p>
                         </td>
                         <td>
-                            <span>{{selectquandF[task.id]}}</span>
+                            <span>{{delai[task.id]}}</span>
                         </td>
                     </tr>
                 </tbody>
@@ -474,14 +490,20 @@
         <h5>VII-Planning ou  chronogramme des tâches</h5>
         <div class="container">
             <GantComponent  :bar-list="barList"
-                            :project-id="id_projet"/> <br>
+                            :project-id="id_projet"
+                            @trigger-readTA="readTA"
+                            @trigger-addBar="addBar"/> <br>
             <ModalGant :tasklist="taskG" 
                        :project-id="id_projet"
                        :name="projetname"
                        :options="options"
                        @trigger-readTA="readTA"
-                       :selectquandDD="selectquandDD"
-                       :selectActor="selectActor"/>
+                       :selectquandD="selectquandD"
+                       :selectActor="selectActor"
+                       :selectquandF="selectquandF"
+                       :onSubmit="fetchTAForModal"
+                       @trigger-addBar="addBar"/>  
+                       
         </div>
     </main>
 </template>
@@ -491,9 +513,8 @@ import Multiselect from 'vue-multiselect';
 import ModalComponent from '@/components/modalComponent.vue'
 import GantComponent from '@/components/gant.vue'
 import ModalGant from '@/components/modalGannt.vue'
-import TableauAction from '@/components/tableauAction.vue'
 export default {
-    components: { Multiselect, ModalComponent, GantComponent, ModalGant,},
+    components: { Multiselect, ModalComponent, GantComponent, ModalGant},
     props: ['id_projet'],
     data() {
         return {
@@ -533,7 +554,7 @@ export default {
             tableDataD: [],
             task: "",
             tasks: "",
-            taskG :[],
+            taskG :{},
             id: "",
             humanresources: "",
             modification: false,
@@ -552,6 +573,7 @@ export default {
             selectedTasks: {},
             selectquandD: {},
             selectquandF: {},
+            delai:{},
             selectcomment: {},
             selectpourquoi: {},
             selectcombien: {},
@@ -592,6 +614,7 @@ export default {
             select:{},
             modif:{},
             selectE:{},
+            showModal: false,
         }       
     },
     computed: {
@@ -669,6 +692,11 @@ export default {
                     console.log(error)
                 });
 
+        },
+        transformDate(dateStr) {
+        if (!dateStr) return '';
+        let [year, month, day] = dateStr.split('-');
+        return `${day}-${month}-${year}`;
         },
         NavigateToObjective() {
             this.$router.push({ name: 'objective', params: { id_projet: this.id_p } });
@@ -1081,7 +1109,6 @@ export default {
                     this.tableDataT = response.data;
                     this.tasks = response.data;
                     this.taskG = response.data;
-                    console.log(this.taskG)
                 }).catch((error) => {
                     console.log(error)
                 })
@@ -1305,8 +1332,6 @@ export default {
                 })
         },
         async fetchTA(taskId) {    
-            console.log(this.taskss);
-            console.log(this.projetname);
             var data = new FormData();
             data.append('id_projet', this.id_projet);
             data.append('id_t', taskId);
@@ -1344,6 +1369,7 @@ export default {
             })
                 this.idS=taskId;
         },
+        
         readTA() {
             var data = new FormData();
             data.append('id_p', this.id_projet);
@@ -1367,8 +1393,8 @@ export default {
                         this.selectOu[taskId] = '';
                     } else {
                         this.selectOuS[taskId] = item.ou;
-                        this.select[taskId]=item.ou;
-                        this.selectE[taskId]=item.ou;
+                        // this.select[taskId]=item.ou;
+                        // this.selectE[taskId]=item.ou;
                     };
                     this.selectquandD[taskId] = item.quandD;
                     this.selectquandDD[taskId] = item.quandD;
@@ -1377,33 +1403,34 @@ export default {
 
                     this.selectquandF[taskId] = item.quandF;
                     this.selectquandFF[taskId] = item.quandF;
+                    this.delai[taskId]=this.transformDate(item.quandF);
                     this.select[taskId]=item.quandF;
-                    this.selectE[taskId]=item.quandF; 
-
+                    this.selectE[taskId]=item.quandF;
                     if (item.comment == 'null' || item.comment == 'undefined') {
                         this.selectcomment[taskId] = '';
                     } else {
                         this.selectcomment[taskId] = item.comment;
                         this.selectcommentt[taskId]= item.comment;
-                        this.select[taskId]=item.comment;
-                        this.selectE[taskId]=item.comment;
+                        // this.select[taskId]=item.comment;
+                        // this.selectE[taskId]=item.comment;
                     };
                     if (item.pourquoi == 'null' || item.pourquoi == 'undefined') {
                         this.selectpourquoi[taskId] = '';
                     } else {
                         this.selectpourquoi[taskId] = item.pourquoi;
                         this.selectpourquoii[taskId]= item.pourquoi;
-                        this.select[taskId]=item.pourquoi;
-                        this.selectE[taskId]=item.pourquoi;
+                        // this.select[taskId]=item.pourquoi;
+                        // this.selectE[taskId]=item.pourquoi;
                     };
                     if (item.combien == 'null' || item.combien == 'undefined') {
                         this.selectcombien[taskId] = '';
                     } else {
                         this.selectcombien[taskId] = item.combien;
                         this.selectcombienn[taskId] = item.combien;
-                        this.select[taskId]=item.combien;
-                        this.selectE[taskId]=item.combien;
+                        // this.select[taskId]=item.combien;
+                        // this.selectE[taskId]=item.combien;
                     };
+                    console.log('je suis appélé');
                 })
                
             }).catch((error) => {
@@ -1412,7 +1439,6 @@ export default {
 
         },
         modifyTa(taskId){
-            console.log(taskId);
             this.modify[taskId]=true;
             if(this.selectActor[taskId].length==0){
                 this.value[taskId]=''
@@ -1439,6 +1465,7 @@ export default {
         updateTA(taskId){
             var data = new FormData();
             data.append('id', taskId);
+            console.log(this.value[taskId]);
             if(this.value[taskId].length==0){
                 data.append('qui', '');               
             }else{
@@ -1454,14 +1481,14 @@ export default {
             data.append('quandF', this.selectquandF[taskId]);
             data.append('comment', this.selectcomment[taskId]);
             data.append('pourquoi', this.selectpourquoi[taskId]);
-            data.append('combien', this.selectcombien[taskId]);
-            console.log( data);              
+            data.append('combien', this.selectcombien[taskId]);           
             axios({
                 method: 'POST',
                 url: 'http://localhost/planaction/projectinfo.php?action=update_tableauaction',
                 data: data
             }).then((response) => {
                 this. readTA();
+                this.addBar();
                 this.modify[taskId]=false;
                 this.enregistrer[taskId]=false;
                 this.modif[taskId]=true;
@@ -1533,6 +1560,19 @@ export default {
                 })
 
             },
+        async fetchTAForModal(data) {                        
+            await axios({
+                method: 'POST',
+                url: 'http://localhost/planaction/projectinfo.php?action=create_tableauaction',
+                data: data
+            }).then((response) => {
+                this. readTA();
+                this.addBar();
+            }).catch((error) => {
+                console.log(error)
+            })
+                
+        },
             
             deletePlusList(itemId){
                 var data= new FormData();
@@ -1561,26 +1601,19 @@ export default {
                 })
                 .then((response)=>{
                   console.log(response.data)
+                  if(response.data="Message has been sent"){
+                //    this.showModal= true;
+                //    setTimeout(() => {
+                //         this.showModal = false;
+                //     }, 2000); 
+                  }else{
+                 
+                  }
                 }).catch((error)=>{
                     console.log(error)
                 })
  
             },
-            addNewBar() {
-        const bar = {
-          myBeginDate: "2021-07-11 17:00",
-          myEndDate: "2022-07-12 03:00", 
-          ganttBarConfig: {
-            id: "some-id-blabla" ,
-          }
-        };
-         console.log(this.myBarList);
-        this.myBarList.push(bar);
-        console.log(this.myBarList);
-      },
-      onDragBar(bar, e, datetime) {
-        console.log('DragBar on bar:', bar, e, datetime);
-      },
     
     async addBar() {
       var data = new FormData();
@@ -1621,7 +1654,6 @@ export default {
             }
           }))
         }));
-        console.log(this.barList);
 
       } catch (error) {
         console.log(error);
@@ -1639,7 +1671,14 @@ export default {
     margin-top: 120px;
     margin-left: 40px;
 }
-
+.modal-title{
+    margin-left: 30px;
+}
+.modal{
+    width:250px!important;
+    margin-left: 550px;
+    margin-top: 200px;
+}
 .card {
     margin-left: 150px;
 }
@@ -1703,10 +1742,7 @@ td,tr {
     table-layout: auto;
     width: 1085px;
 }
-.ms{
-    table-layout: fixed;
-    width: 100%;
-}
+
 .table3{
     width: 1085px;
     margin-left: 70px;
