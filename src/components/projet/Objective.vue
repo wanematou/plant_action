@@ -90,11 +90,11 @@
                             </template>
                             <template #default="scope">
                                 <el-button size="small" @click="modifySpecificObjective(scope.$id, scope.row)">
-                                    supprimer
+                                    modifier
                                 </el-button>
                                 <el-button size="small" type="danger"
                                     @click="deleteSpecificObjective(scope.$id, scope.row)">
-                                    modifier
+                                    supprimer
                                 </el-button>
                             </template>
                         </el-table-column>
@@ -365,6 +365,23 @@
             </div>
             <div v-if="showModal" class="modal-backdrop fade show"></div>
             </div>
+            <div>
+
+            <div v-if="showModals" class="modal fade show d-block" tabindex="-1" role="dialog">
+                <div class="modal-dialog modaldialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                    <h5 class="modal-title text-primary">Notification</h5>
+                    </div>
+                    <div class="modal-body">                
+                        Erreur, message non envoyé.
+                </div>
+                </div>
+                </div>
+            </div>
+            <div v-if="showModals" class="modal-backdrop fade show"></div>
+            </div>
+
             <div class="qqocq">
                 <p>Roadmap du cycle ou feuille de route:</p>
                 <b>Q.Q.O.Q.C.P.C(Qui, Quoi, Où, Quand, Comment, Pourquoi, Combien).</b>
@@ -615,6 +632,7 @@ export default {
             modif:{},
             selectE:{},
             showModal: false,
+            showModals: false,
         }       
     },
     computed: {
@@ -1187,8 +1205,7 @@ export default {
                     response.data.forEach(item => {
                         var name = item.firstname + ' ' + item.lastname;
                         var email = item.email;
-                        this.options.push({ name: name, code: email }); 
-                             
+                        this.options.push({ name: name, code: email });      
                     })
                 }).catch((error) => {
                     console.log(error)
@@ -1226,7 +1243,7 @@ export default {
         },
         deletehumanresource(id, row) {
             var data = new FormData();
-            data.append("id", row.id)
+            data.append("email", row.email)
             axios({
                 method: 'POST',
                 url: 'http://localhost/planaction/projectinfo.php?action=delete_humanresource',
@@ -1378,7 +1395,7 @@ export default {
                 url: 'http://localhost/planaction/projectinfo.php?action=read_tableauaction',
                 data: data
             }).then((response) => {
-                this.readhumanresource();
+                // this.readhumanresource();
                 response.data.forEach(item => {
                     var taskId = item.id_task;   
                     this.idp= item.id;
@@ -1430,7 +1447,6 @@ export default {
                         // this.select[taskId]=item.combien;
                         // this.selectE[taskId]=item.combien;
                     };
-                    console.log('je suis appélé');
                 })
                
             }).catch((error) => {
@@ -1439,6 +1455,7 @@ export default {
 
         },
         modifyTa(taskId){
+            console.log(this.selectActor[taskId]);
             this.modify[taskId]=true;
             if(this.selectActor[taskId].length==0){
                 this.value[taskId]=''
@@ -1555,6 +1572,7 @@ export default {
                 })
                 .then((response)=>{
                     this.readPlussList();
+                    this.readPlusssList();
                 }).catch((error)=>{
                     console.log(error)
                 })
@@ -1585,6 +1603,7 @@ export default {
                 })
                 .then((response)=>{
                     this.readPlussList();
+                    this.readPlusssList();
                 }).catch((error)=>{
                     console.log(error)
                 })
@@ -1600,14 +1619,18 @@ export default {
                     data: data
                 })
                 .then((response)=>{
-                  console.log(response.data)
-                  if(response.data="Message has been sent"){
-                //    this.showModal= true;
-                //    setTimeout(() => {
-                //         this.showModal = false;
-                //     }, 2000); 
-                  }else{
-                 
+                  console.log(response.data.message)
+                  if(response.data.message=='Message has been sent'){
+                   this.showModal= true;
+                   setTimeout(() => {
+                        this.showModal = false;
+                    }, 2000); 
+                  }
+                  else{
+                    this.showModals= true;
+                    setTimeout(() => {
+                            this.showModals = false;
+                        }, 2000);
                   }
                 }).catch((error)=>{
                     console.log(error)
@@ -1672,7 +1695,7 @@ export default {
     margin-left: 40px;
 }
 .modal-title{
-    margin-left: 30px;
+    margin-left: 50px;
 }
 .modal{
     width:250px!important;

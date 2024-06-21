@@ -513,6 +513,30 @@ export default {
         }
         },
         downloadPDF() {
+            window.html2canvas = html2canvas
+            const doc = new jsPDF({
+                    orientation: 'p',
+                    unit: 'px',
+                    format: 'a4',
+                    floatPrecision: 16,
+                    hotfixes: ["px_scaling"],
+                });
+
+            try {
+            const page = document.querySelector('#card')
+            doc.setFontSize(12)
+            doc.html(page, {
+                margin:[60,0,100,20],
+                callback: function (doc) {
+                doc.save(`carte.pdf`)
+                },
+                x: 10,
+                y: 10
+            })
+            } catch (err) {
+               console.error(err)
+            }
+            /*
             const cardContent = document.getElementById('card');
             html2canvas(cardContent).then(canvas => {
                 const doc = new jsPDF({
@@ -523,17 +547,22 @@ export default {
                     hotfixes: ["px_scaling"],
                 });
                 let x = 0, y = 0, w = cardContent.clientWidth, h = cardContent.clientHeight;
+                var width = doc.internal.pageSize.getWidth();
+                var height = doc.internal.pageSize.getHeight();
+                console.log({height});
+                console.log({width});
                 while (y <= h) {
                     if (y > 0) {
                         doc.addPage('a4', 'p');
                     }
-                    doc.addImage(canvas, 'PNG', 0, -y);
+                    doc.addImage(canvas, 'PNG', 0, -y, 4);
                     y += 1024;
                 }
                 doc.save('carte.pdf');
             }).catch((error) => {
                 console.error('Erreur lors de la capture de la carte avec html2canvas:', error);
             });
+            */
         }
     }
 }
